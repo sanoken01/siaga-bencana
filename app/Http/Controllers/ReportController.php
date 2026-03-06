@@ -21,10 +21,12 @@ class ReportController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required',
-            'disaster_type' => 'required',
-            'location' => 'required',
+            'title' => 'required|string|max:255',
+            'disaster_type' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
             'report_date' => 'required|date',
+            'description' => 'required|string',
+            'status' => 'nullable|in:Diproses,Diverifikasi,Selesai',
         ]);
 
         Report::create($request->all());
@@ -41,10 +43,12 @@ class ReportController extends Controller
     public function update(Request $request, Report $report)
     {
         $request->validate([
-            'title' => 'required',
-            'disaster_type' => 'required',
-            'location' => 'required',
+            'title' => 'required|string|max:255',
+            'disaster_type' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
             'report_date' => 'required|date',
+            'description' => 'required|string',
+            'status' => 'nullable|in:Diproses,Diverifikasi,Selesai',
         ]);
 
         $report->update($request->all());
@@ -58,6 +62,47 @@ class ReportController extends Controller
         $report->delete();
 
         return redirect()->route('reports.index')
-                         ->with('success', 'Laporan berhasil dihapus!');
+                         ->with('success', 'Laporan berhasil dihapus.');
+    }
+
+    public function getDisasterData()
+    {
+        $disasters = Report::whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->where('disaster_type', '!=', '')
+            ->latest('report_date')
+            ->get()
+            ->map(function ($disaster) {
+                return [
+                    'id' => $disaster->id,
+                    'title' => $disaster->title,
+                    'type' => $disaster->disaster_type,
+                    'location' => $disaster->location,
+                    'lat' => (float) $disaster->latitude,
+                    'lng' => (float) $disaster->longitude,
+                    'date' => $disaster->report_date->format('Y-m-d H:i'),
+                    'description' => $disaster->description,
+                    'status' => $disaster->disaster_status,
+                    'prediction' => $disaster->prediction_percentage,
+                    'color' => $this->getMarkerColor($disaster),
+                ];
+            });
+
+        return response()->json($disasters);
+    }
+
+    private function getMarkerColor($disaster)
+    {
+        if ($disaster->disaster_status === 'Terjadi') {
+            return '#FF0000'; // Merah untuk bencana sedang terjadi
+        } elseif ($disaster->disaster_status === 'Selesai') {
+            return '#FFFFFF'; // Putih untuk bencana selesai
+        } else { // Prediksi
+            if ($disaster->prediction_percentage >= 50) {
+                return '#FFA500'; // Orange untuk prediksi >= 50%
+            } else {
+                return '#FFFF00'; // Kuning untuk prediksi < 50%
+            }
+        }
     }
 }

@@ -13,5 +13,15 @@ class Report extends Model
         'report_date',
         'description',
         'status',
+        'latitude',
+        'longitude',
+        'prediction_percentage',
+        'disaster_status',
+    ];
+
+    protected $casts = [
+        'report_date' => 'date',
+        'latitude' => 'float',
+        'longitude' => 'float',
     ];
 }

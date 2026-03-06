@@ -12,6 +12,9 @@
 
     <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
         /* ============================================================
@@ -214,6 +217,26 @@
         .btn-login-admin:hover {
             transform: translateY(-2px);
             box-shadow: 0 12px 24px rgba(0, 142, 255, 0.35);
+        }
+
+        .btn-register {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin-left: 0.55rem;
+            padding: 0.66rem 1.1rem;
+            border-radius: var(--radius-pill);
+            color: #0b4f86;
+            font-weight: 600;
+            font-size: 0.88rem;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(0, 85, 153, 0.18);
         }
 
         /* ============================================================
@@ -711,36 +734,58 @@
         }
 
         /* ============================================================
-           PETA INTERAKTIF
+           PETA INTERAKTIF (MAIN FEATURE)
         ============================================================ */
         .map-section {
-            background: #ffffff;
+            background:
+                radial-gradient(circle at 8% 20%, rgba(182, 243, 255, 0.46), transparent 36%),
+                radial-gradient(circle at 88% 14%, rgba(255, 216, 240, 0.34), transparent 34%),
+                linear-gradient(130deg, #edf8ff 0%, #f8fcff 100%);
+            overflow: hidden;
         }
 
-        .map-box {
-            min-height: 330px;
-            border-radius: 24px;
+        .map-main-wrap {
+            width: min(1340px, 96%);
+            margin-inline: auto;
+            text-align: center;
+        }
+
+        .map-main-heading {
+            font-size: clamp(2.1rem, 4.8vw, 3.4rem);
+            line-height: 1.12;
+            font-weight: 800;
+            margin-bottom: 0.72rem;
+            color: #0d3f74;
+        }
+
+        .map-main-description {
+            color: #4f6582;
+            font-size: 1rem;
+            margin-bottom: 2.15rem;
+        }
+
+        .map-display-card {
+            min-height: 520px;
+            border-radius: 30px;
             position: relative;
             overflow: hidden;
             background:
-                linear-gradient(120deg, rgba(79, 172, 254, 0.14), rgba(0, 198, 255, 0.11)),
-                linear-gradient(135deg, #f4fbff, #ecf8ff);
-            border: 1.5px solid transparent;
-            background-clip: padding-box;
-            box-shadow: 0 16px 36px rgba(10, 92, 152, 0.13);
-            display: grid;
-            place-items: center;
-            text-align: center;
-            padding: 2rem;
+                linear-gradient(130deg, rgba(79, 172, 254, 0.2), rgba(0, 198, 255, 0.16)),
+                linear-gradient(130deg, #f6fcff, #eaf6ff);
+            border: 1px solid rgba(118, 211, 255, 0.4);
+            box-shadow: 0 26px 52px rgba(11, 97, 160, 0.18);
+            padding: 2.4rem;
+            text-align: left;
+            transition: transform var(--transition-medium), box-shadow var(--transition-medium), border-color var(--transition-medium);
         }
 
-        .map-box::before {
+        .map-display-card::before {
             content: '';
             position: absolute;
             inset: 0;
             border-radius: inherit;
             padding: 1.5px;
-            background: linear-gradient(135deg, var(--blue-start), var(--blue-end), var(--pink-soft));
+            background: linear-gradient(140deg, rgba(79, 172, 254, 0.95), rgba(0, 198, 255, 0.85), rgba(255, 216, 240, 0.75));
             -webkit-mask:
                 linear-gradient(#fff 0 0) content-box,
                 linear-gradient(#fff 0 0);
@@ -749,29 +794,192 @@
             pointer-events: none;
         }
 
-        .map-icon {
-            width: 84px;
-            height: 84px;
-            border-radius: 26px;
-            display: grid;
-            place-items: center;
-            font-size: 2rem;
-            margin: 0 auto 0.9rem;
-            color: #fff;
-            background: linear-gradient(135deg, #40baff, #0092ff);
-            box-shadow: 0 12px 28px rgba(0, 146, 255, 0.28);
+        .map-display-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 32px 58px rgba(11, 97, 160, 0.24);
+            border-color: rgba(87, 195, 255, 0.56);
         }
 
-        .map-title {
-            font-size: 1.32rem;
+        .map-top-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.15rem;
+        }
+
+        .map-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.46rem 0.98rem;
+            border-radius: var(--radius-pill);
+            background: rgba(79, 172, 254, 0.14);
+            color: #0e65ab;
+            font-size: 0.85rem;
             font-weight: 700;
-            margin-bottom: 0.35rem;
         }
 
-        .map-subtitle {
-            color: #55718e;
-            max-width: 580px;
-            margin-inline: auto;
+        .map-preview {
+            min-height: 500px;
+            border-radius: 24px;
+            border: 1px solid rgba(19, 120, 194, 0.34);
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        #interactiveMap {
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+            border-radius: 24px;
+        }
+
+        .disaster-marker-popup {
+            font-family: 'Poppins', sans-serif;
+            min-width: 260px;
+        }
+
+        .disaster-marker-popup h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin: 0 0 0.4rem 0;
+            color: #0e447d;
+        }
+
+        .disaster-marker-popup p {
+            font-size: 0.85rem;
+            margin: 0.3rem 0;
+            color: #4f6684;
+        }
+
+        .disaster-marker-popup .disaster-type {
+            background: rgba(79, 172, 254, 0.15);
+            padding: 0.3rem 0.6rem;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #0e65ab;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+
+        .disaster-marker-popup .disaster-status {
+            display: inline-block;
+            margin-left: 0.3rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .disaster-status.sedang-terjadi {
+            background: #FF0000;
+        }
+
+        .disaster-status.selesai {
+            background: #FFFFFF;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+
+        .disaster-status.prediksi-tinggi {
+            background: #FFA500;
+        }
+
+        .disaster-status.prediksi-rendah {
+            background: #FFFF00;
+            color: #333;
+        }
+
+        .leaflet-marker-icon {
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .map-legend {
+            position: absolute;
+            bottom: 2rem;
+            right: 1rem;
+            background: white;
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-size: 0.85rem;
+            z-index: 1000;
+            max-width: 220px;
+        }
+
+        .map-legend h4 {
+            margin: 0 0 0.6rem 0;
+            font-weight: 700;
+            color: #0e447d;
+            font-size: 0.9rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin: 0.5rem 0;
+            font-size: 0.82rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #999;
+        }
+
+        /* ============================================================
+           QUICK REPORT SECTION
+        ============================================================ */
+        .quick-report {
+            background: #ffffff;
+        }
+
+        .quick-report-card {
+            border-radius: 24px;
+            padding: clamp(1.4rem, 2.8vw, 2rem);
+            background: linear-gradient(120deg, rgba(79, 172, 254, 0.12), rgba(0, 198, 255, 0.1));
+            border: 1px solid rgba(126, 214, 255, 0.42);
+            box-shadow: 0 16px 34px rgba(9, 98, 166, 0.14);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .quick-report-card h3 {
+            font-size: clamp(1.35rem, 2.7vw, 1.85rem);
+            margin-bottom: 0.35rem;
+            color: #0f437b;
+        }
+
+        .quick-report-card p {
+            color: #4e6481;
+            max-width: 680px;
+        }
+
+        .btn-quick-report {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            border-radius: var(--radius-pill);
+            padding: 0.95rem 1.35rem;
+            color: #fff;
+            font-weight: 700;
+            background: linear-gradient(90deg, #2ea8ff, #0076ff);
+            box-shadow: 0 12px 26px rgba(0, 118, 255, 0.3);
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .btn-quick-report:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 17px 34px rgba(0, 118, 255, 0.38);
         }
 
         /* ============================================================
@@ -1243,9 +1451,13 @@
                 <li><a href="#kontak">Kontak</a></li>
             </ul>
 
-            <a href="#" class="btn-login-admin">
+            <a href="{{ route('login') }}" class="btn-login-admin">
                 <i class="fa-solid fa-user-shield"></i>
-                Login Admin
+                Login
+            </a>
+            <a href="{{ route('register') }}" class="btn-register">
+                <i class="fa-solid fa-user-plus"></i>
+                Daftar
             </a>
         </div>
     </header>
@@ -1265,9 +1477,9 @@
                 </p>
 
                 <div class="hero-cta">
-                    <a href="#status" class="btn btn-primary">
+                    <a href="#peta" class="btn btn-primary">
                         <i class="fa-solid fa-bolt"></i>
-                        Lihat Status Sekarang
+                        Pantau Peta Bencana
                     </a>
                     <a href="#fitur" class="btn btn-secondary">
                         <i class="fa-solid fa-circle-info"></i>
@@ -1299,7 +1511,125 @@
     </section>
 
     <!-- ============================================================
-         3) TRUSTED / SOCIAL PROOF SECTION
+         3) PETA INTERAKTIF (MAIN FEATURE)
+    ============================================================ -->
+    <section class="map-section section-padding reveal" id="peta">
+        <div class="map-main-wrap">
+            <div class="section-heading">
+                <span class="tag">Fitur Utama</span>
+                <h2 class="map-main-heading">Peta Bencana Jawa Timur</h2>
+                <p class="map-main-description">Pantau lokasi bencana secara visual dan real-time.</p>
+            </div>
+
+            <div class="map-display-card">
+                <div class="map-top-meta">
+                    <span class="map-badge"><i class="fa-solid fa-satellite-dish"></i> Live Monitoring Map</span>
+                    <span class="map-badge"><i class="fa-solid fa-layer-group"></i> Integrasi Marker Dinamis</span>
+                </div>
+
+                <div class="map-preview" id="mapContainer">
+                    <div id="interactiveMap"></div>
+                    <div class="map-legend">
+                        <h4>Legenda Status</h4>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #FF0000;"></div>
+                            <span>Gempa Terjadi (Merah)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #FFFFFF; border: 2px solid #999;"></div>
+                            <span>Bencana Selesai (Putih)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #FFA500;"></div>
+                            <span>Prediksi ≥50% (Orange)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #FFFF00;"></div>
+                            <span>Prediksi &lt;50% (Kuning)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         4) STATUS BENCANA TERKINI
+    ============================================================ -->
+    <section class="status-section section-padding reveal" id="status">
+        <div class="container">
+            <div class="section-heading">
+                <span class="tag">Update Terkini</span>
+                <h2>Status Bencana Saat Ini</h2>
+                <p>Informasi terbaru dari beberapa wilayah prioritas untuk memudahkan kesiapsiagaan komunitas.</p>
+            </div>
+
+            <div class="status-list">
+                <article class="status-card">
+                    <div class="status-left">
+                        <div class="status-icon"><i class="fa-solid fa-house-crack"></i></div>
+                        <div class="status-info">
+                            <h3>Gempa Bumi - Jawa Barat</h3>
+                            <p>Magnitudo sedang, pemantauan intensif dan pemeriksaan bangunan vital dilakukan.</p>
+                        </div>
+                    </div>
+                    <div class="status-meta">
+                        <span class="badge badge-siaga"><i class="fa-solid fa-circle"></i> Siaga</span>
+                        <a href="#" class="btn-detail">Detail <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="status-card">
+                    <div class="status-left">
+                        <div class="status-icon"><i class="fa-solid fa-water"></i></div>
+                        <div class="status-info">
+                            <h3>Banjir - Kalimantan Selatan</h3>
+                            <p>Ketinggian air mulai naik di beberapa kecamatan, tim evakuasi sudah disiagakan.</p>
+                        </div>
+                    </div>
+                    <div class="status-meta">
+                        <span class="badge badge-waspada"><i class="fa-solid fa-circle"></i> Waspada</span>
+                        <a href="#" class="btn-detail">Detail <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <article class="status-card">
+                    <div class="status-left">
+                        <div class="status-icon"><i class="fa-solid fa-mountain-city"></i></div>
+                        <div class="status-info">
+                            <h3>Gunung Meletus - Nusa Tenggara</h3>
+                            <p>Aktivitas vulkanik stabil dengan radius aman diperluas berdasarkan laporan terbaru.</p>
+                        </div>
+                    </div>
+                    <div class="status-meta">
+                        <span class="badge badge-aman"><i class="fa-solid fa-circle"></i> Aman</span>
+                        <a href="#" class="btn-detail">Detail <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         5) QUICK REPORT
+    ============================================================ -->
+    <section class="quick-report section-padding reveal">
+        <div class="container">
+            <div class="quick-report-card">
+                <div>
+                    <h3>Laporan Cepat Kejadian Bencana</h3>
+                    <p>Kirim laporan langsung dari lapangan agar tim tanggap darurat dapat memverifikasi dan menindaklanjuti lebih cepat.</p>
+                </div>
+                <a href="{{ route('reports.index') }}" class="btn-quick-report">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    Buat Laporan
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         6) TRUSTED / SOCIAL PROOF SECTION
     ============================================================ -->
     <section class="trusted reveal">
         <div class="container">
@@ -1317,7 +1647,7 @@
     <!-- ============================================================
          4) STATISTIK SECTION (CARD MODERN)
     ============================================================ -->
-    <section class="stats section-padding reveal" id="status">
+    <section class="stats section-padding reveal" id="stats">
         <div class="container">
             <div class="section-heading">
                 <span class="tag">Statistik Nasional</span>
@@ -1417,91 +1747,6 @@
                     </div>
                 </a>
 
-                <a href="#" class="block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/70 rounded-2xl">
-                    <div class="feature-card h-full rounded-2xl text-center cursor-pointer transition duration-300 ease-in-out hover:-translate-y-2 hover:shadow-2xl">
-                        <div class="feature-icon mx-auto"><i class="fa-solid fa-book-open"></i></div>
-                        <h3>Edukasi Keselamatan</h3>
-                        <p>Materi mitigasi praktis untuk keluarga, sekolah, dan komunitas di daerah rawan bencana.</p>
-                    </div>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============================================================
-         6) STATUS BENCANA TERKINI
-    ============================================================ -->
-    <section class="status-section section-padding reveal">
-        <div class="container">
-            <div class="section-heading">
-                <span class="tag">Update Terkini</span>
-                <h2>Status Bencana Saat Ini</h2>
-                <p>Informasi terbaru dari beberapa wilayah prioritas untuk memudahkan kesiapsiagaan komunitas.</p>
-            </div>
-
-            <div class="status-list">
-                <article class="status-card">
-                    <div class="status-left">
-                        <div class="status-icon"><i class="fa-solid fa-house-crack"></i></div>
-                        <div class="status-info">
-                            <h3>Gempa Bumi - Jawa Barat</h3>
-                            <p>Magnitudo sedang, pemantauan intensif dan pemeriksaan bangunan vital dilakukan.</p>
-                        </div>
-                    </div>
-                    <div class="status-meta">
-                        <span class="badge badge-siaga"><i class="fa-solid fa-circle"></i> Siaga</span>
-                        <a href="#" class="btn-detail">Detail <i class="fa-solid fa-arrow-right"></i></a>
-                    </div>
-                </article>
-
-                <article class="status-card">
-                    <div class="status-left">
-                        <div class="status-icon"><i class="fa-solid fa-water"></i></div>
-                        <div class="status-info">
-                            <h3>Banjir - Kalimantan Selatan</h3>
-                            <p>Ketinggian air mulai naik di beberapa kecamatan, tim evakuasi sudah disiagakan.</p>
-                        </div>
-                    </div>
-                    <div class="status-meta">
-                        <span class="badge badge-waspada"><i class="fa-solid fa-circle"></i> Waspada</span>
-                        <a href="#" class="btn-detail">Detail <i class="fa-solid fa-arrow-right"></i></a>
-                    </div>
-                </article>
-
-                <article class="status-card">
-                    <div class="status-left">
-                        <div class="status-icon"><i class="fa-solid fa-mountain-city"></i></div>
-                        <div class="status-info">
-                            <h3>Gunung Meletus - Nusa Tenggara</h3>
-                            <p>Aktivitas vulkanik stabil dengan radius aman diperluas berdasarkan laporan terbaru.</p>
-                        </div>
-                    </div>
-                    <div class="status-meta">
-                        <span class="badge badge-aman"><i class="fa-solid fa-circle"></i> Aman</span>
-                        <a href="#" class="btn-detail">Detail <i class="fa-solid fa-arrow-right"></i></a>
-                    </div>
-                </article>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============================================================
-         7) SECTION PETA INTERAKTIF
-    ============================================================ -->
-    <section class="map-section section-padding reveal" id="peta">
-        <div class="container">
-            <div class="section-heading">
-                <span class="tag">Peta Monitoring</span>
-                <h2>Peta Interaktif Nasional</h2>
-                <p>Akses visual cepat lokasi bencana, jalur evakuasi, dan titik bantuan resmi.</p>
-            </div>
-
-            <div class="map-box">
-                <div>
-                    <div class="map-icon"><i class="fa-solid fa-map-location-dot"></i></div>
-                    <h3 class="map-title">Placeholder Map Interaktif</h3>
-                    <p class="map-subtitle">Integrasi peta real-time dapat ditambahkan pada tahap backend berikutnya untuk menampilkan marker dinamis.</p>
-                </div>
             </div>
         </div>
     </section>
@@ -1636,6 +1881,145 @@
          - Counter animation saat scroll
     ============================================================ -->
     <script>
+        // Map Initialization and Disaster Real-time Data
+        let map = null;
+        let markers = {};
+        let updateInterval = null;
+
+        function initializeMap() {
+            if (!map) {
+                // Center pada Jawa (-7.0726, 110.3927)
+                map = L.map('interactiveMap').setView([-7.0726, 110.3927], 8);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors',
+                    maxZoom: 19,
+                    minZoom: 6
+                }).addTo(map);
+            }
+        }
+
+        function getMarkerColor(disaster) {
+            if (disaster.status === 'Terjadi') {
+                return '#FF0000'; // Merah untuk bencana sedang terjadi
+            } else if (disaster.status === 'Selesai') {
+                return '#FFFFFF'; // Putih untuk bencana selesai
+            } else { // Prediksi
+                if (disaster.prediction >= 50) {
+                    return '#FFA500'; // Orange untuk prediksi >= 50%
+                } else {
+                    return '#FFFF00'; // Kuning untuk prediksi < 50%
+                }
+            }
+        }
+
+        function getMarkerIcon(color) {
+            const svgMarker = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                    <circle cx="16" cy="12" r="10" fill="${color}" stroke="#333" stroke-width="2"/>
+                </svg>
+            `;
+            return L.icon({
+                iconUrl: 'data:image/svg+xml;base64,' + btoa(svgMarker),
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -16]
+            });
+        }
+
+        function createPopupContent(disaster) {
+            let statusClass = '';
+            let statusText = '';
+
+            if (disaster.status === 'Terjadi') {
+                statusClass = 'sedang-terjadi';
+                statusText = 'SEDANG TERJADI';
+            } else if (disaster.status === 'Selesai') {
+                statusClass = 'selesai';
+                statusText = 'SELESAI';
+            } else {
+                if (disaster.prediction >= 50) {
+                    statusClass = 'prediksi-tinggi';
+                    statusText = `PREDIKSI ${disaster.prediction}%`;
+                } else {
+                    statusClass = 'prediksi-rendah';
+                    statusText = `PREDIKSI ${disaster.prediction}%`;
+                }
+            }
+
+            return `
+                <div class="disaster-marker-popup">
+                    <h4>${disaster.title}</h4>
+                    <p><strong>Tipe:</strong> ${disaster.type}</p>
+                    <p><strong>Lokasi:</strong> ${disaster.location}</p>
+                    <p><strong>Tanggal:</strong> ${disaster.date}</p>
+                    <p><strong>Deskripsi:</strong> ${disaster.description}</p>
+                    <div>
+                        <span class="disaster-type">${disaster.type}</span>
+                        <span class="disaster-status ${statusClass}">${statusText}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadDisasterData() {
+            fetch('/api/disaster-data')
+                .then(response => response.json())
+                .then(disasters => {
+                    // Clear old markers
+                    Object.keys(markers).forEach(key => {
+                        map.removeLayer(markers[key]);
+                    });
+                    markers = {};
+
+                    // Add new markers
+                    disasters.forEach(disaster => {
+                        const color = getMarkerColor(disaster);
+                        const icon = getMarkerIcon(color);
+
+                        const marker = L.marker([disaster.lat, disaster.lng], { icon: icon })
+                            .addTo(map)
+                            .bindPopup(createPopupContent(disaster));
+
+                        markers[disaster.id] = marker;
+                    });
+                })
+                .catch(error => console.error('Error loading disaster data:', error));
+        }
+
+        function startRealTimeUpdates() {
+            // Load immediately on page load
+            loadDisasterData();
+
+            // Update setiap 5 detik untuk real-time data
+            updateInterval = setInterval(loadDisasterData, 5000);
+        }
+
+        function stopRealTimeUpdates() {
+            if (updateInterval) {
+                clearInterval(updateInterval);
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if map container is visible
+            const mapContainer = document.getElementById('mapContainer');
+            if (mapContainer) {
+                initializeMap();
+                startRealTimeUpdates();
+            }
+        });
+
+        // Stop updates when page is hidden to save bandwidth
+        document.addEventListener('visibility-change', function() {
+            if (document.hidden) {
+                stopRealTimeUpdates();
+            } else if (map) {
+                startRealTimeUpdates();
+            }
+        });
+
         (function () {
             const navbar = document.getElementById('mainNavbar');
             const backToTopBtn = document.getElementById('backToTop');
