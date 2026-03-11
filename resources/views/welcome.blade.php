@@ -898,6 +898,25 @@
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
 
+        .custom-marker-icon {
+            background: none !important;
+            border: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .custom-marker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+
+        .custom-marker-icon:hover .custom-marker {
+            transform: scale(1.3);
+        }
+
         .map-legend {
             position: absolute;
             bottom: 2rem;
@@ -1888,6 +1907,7 @@
 
         function initializeMap() {
             if (!map) {
+                console.log('Initializing map...');
                 // Center pada Jawa (-7.0726, 110.3927)
                 map = L.map('interactiveMap').setView([-7.0726, 110.3927], 8);
 
@@ -1896,6 +1916,8 @@
                     maxZoom: 19,
                     minZoom: 6
                 }).addTo(map);
+                
+                console.log('Map initialized successfully');
             }
         }
 
@@ -1914,16 +1936,17 @@
         }
 
         function getMarkerIcon(color) {
-            const svgMarker = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-                    <circle cx="16" cy="12" r="10" fill="${color}" stroke="#333" stroke-width="2"/>
-                </svg>
+            const html = `
+                <div class="custom-marker" style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #333; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>
             `;
-            return L.icon({
-                iconUrl: 'data:image/svg+xml;base64,' + btoa(svgMarker),
+            console.log('Creating marker with color:', color, 'HTML:', html);
+            
+            return L.divIcon({
+                html: html,
                 iconSize: [32, 32],
                 iconAnchor: [16, 16],
-                popupAnchor: [0, -16]
+                popupAnchor: [0, -16],
+                className: 'custom-marker-icon'
             });
         }
 
@@ -1964,17 +1987,31 @@
 
         function loadDisasterData() {
             fetch('/api/disaster-data')
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(disasters => {
+                    console.log('Disasters loaded:', disasters);
+                    
                     // Clear old markers
                     Object.keys(markers).forEach(key => {
                         map.removeLayer(markers[key]);
                     });
                     markers = {};
 
+                    if (disasters.length === 0) {
+                        console.warn('No disaster data received from API');
+                        return;
+                    }
+
                     // Add new markers
                     disasters.forEach(disaster => {
+                        console.log('Adding marker for:', disaster.title, 'Color:', disaster.status);
                         const color = getMarkerColor(disaster);
+                        console.log('Final color:', color);
                         const icon = getMarkerIcon(color);
 
                         const marker = L.marker([disaster.lat, disaster.lng], { icon: icon })
@@ -1983,6 +2020,8 @@
 
                         markers[disaster.id] = marker;
                     });
+                    
+                    console.log('Total markers added:', Object.keys(markers).length);
                 })
                 .catch(error => console.error('Error loading disaster data:', error));
         }
