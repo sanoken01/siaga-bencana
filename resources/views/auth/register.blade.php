@@ -1,167 +1,147 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Register | Siaga Bencana</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="csrf-token" content="{{ csrf_token() }}">
+	<title>Register | Siaga Bencana</title>
 
-    <style>
-        body {
-            font-family: 'Sora', sans-serif;
-        }
-
-        .auth-bg {
-            background: linear-gradient(145deg, #032447 0%, #0b4f88 40%, #26b9cb 100%);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .shape {
-            position: absolute;
-            border-radius: 9999px;
-            background: rgba(255, 255, 255, 0.2);
-            pointer-events: none;
-            animation: floaty 9s ease-in-out infinite;
-        }
-
-        .slide-up {
-            opacity: 0;
-            transform: translateY(24px);
-            transition: opacity 650ms ease, transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        .loaded .slide-up {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .input-anim {
-            transition: all 230ms ease;
-        }
-
-        .input-anim:focus {
-            transform: translateY(-1px);
-            box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.14);
-        }
-
-        .glow-btn {
-            transition: transform 220ms ease, box-shadow 260ms ease;
-        }
-
-        .glow-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 0 6px rgba(56, 189, 248, 0.15), 0 16px 32px rgba(2, 132, 199, 0.35);
-        }
-
-        @keyframes floaty {
-            0%, 100% { transform: translateY(0) translateX(0); }
-            50% { transform: translateY(-18px) translateX(10px); }
-        }
-    </style>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+	<link rel="stylesheet" href="{{ asset('css/auth.css') }}">
 </head>
-<body class="auth-bg min-h-screen text-slate-900">
-    <span class="shape w-44 h-44 -top-10 left-10"></span>
-    <span class="shape w-32 h-32 right-12 bottom-16" style="animation-delay: .8s;"></span>
+<body>
+	<main class="auth-page">
+		<div class="auth-container">
+			<section class="left-panel">
+				<div>
+					<span class="left-panel__brand">
+						<i class="fa-solid fa-wave-square"></i>
+						Siaga Bencana
+					</span>
+					<h1 class="left-panel__title">Buat akun untuk mulai memantau informasi bencana dan koordinasi bantuan.</h1>
+					<p class="left-panel__desc">
+						Registrasi cepat untuk mengakses sistem pelaporan, monitoring wilayah, dan kolaborasi respon secara real-time.
+					</p>
+				</div>
 
-    <main class="relative z-10 min-h-screen flex items-center justify-center px-5 py-10">
-        <section class="slide-up w-full max-w-lg rounded-3xl border border-white/45 bg-white/90 p-8 sm:p-10 shadow-2xl shadow-cyan-950/25 backdrop-blur-xl">
-            <div class="mb-7 text-center">
-                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-700">Siaga Bencana</p>
-                <h1 class="mt-2 text-3xl font-extrabold text-slate-900">Buat Akun Baru</h1>
-                <p class="mt-2 text-sm text-slate-600">Gabung untuk memantau informasi bencana dan koordinasi bantuan.</p>
-            </div>
+				<p class="left-panel__meta">
+					Desain autentikasi dibuat modern dan clean agar pengalaman pertama pengguna terasa profesional seperti produk SaaS.
+				</p>
+			</section>
 
-            <form method="POST" action="{{ route('register') }}" class="space-y-5">
-                @csrf
+			<section class="form-panel">
+				<a class="auth-back" href="{{ url('/') }}">
+					<i class="fa-solid fa-arrow-left"></i>
+					Kembali ke beranda
+				</a>
 
-                <div>
-                    <label for="name" class="mb-1.5 block text-sm font-semibold text-slate-700">Nama</label>
-                    <input
-                        id="name"
-                        type="text"
-                        name="name"
-                        value="{{ old('name') }}"
-                        required
-                        autofocus
-                        autocomplete="name"
-                        class="input-anim block w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-cyan-500"
-                        placeholder="Nama lengkap"
-                    >
-                    @error('name')
-                        <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
-                    @enderror
-                </div>
+				<h2 class="form-title">Register</h2>
+				<p class="form-subtitle">Lengkapi data berikut untuk membuat akun baru.</p>
 
-                <div>
-                    <label for="email" class="mb-1.5 block text-sm font-semibold text-slate-700">Email</label>
-                    <input
-                        id="email"
-                        type="email"
-                        name="email"
-                        value="{{ old('email') }}"
-                        required
-                        autocomplete="username"
-                        class="input-anim block w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-cyan-500"
-                        placeholder="nama@email.com"
-                    >
-                    @error('email')
-                        <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
-                    @enderror
-                </div>
+				<form method="POST" action="{{ route('register') }}">
+					@csrf
 
-                <div>
-                    <label for="password" class="mb-1.5 block text-sm font-semibold text-slate-700">Password</label>
-                    <input
-                        id="password"
-                        type="password"
-                        name="password"
-                        required
-                        autocomplete="new-password"
-                        class="input-anim block w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-cyan-500"
-                        placeholder="Minimal 8 karakter"
-                    >
-                    @error('password')
-                        <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
-                    @enderror
-                </div>
+					<div class="form-group">
+						<label for="name" class="form-label">Nama</label>
+						<div class="input-wrap">
+							<span class="input-icon"><i class="fa-regular fa-user"></i></span>
+							<input
+								id="name"
+								type="text"
+								name="name"
+								value="{{ old('name') }}"
+								required
+								autofocus
+								autocomplete="name"
+								class="form-input @error('name') is-invalid @enderror"
+								placeholder="Nama lengkap"
+							>
+						</div>
+						@error('name')
+							<p class="form-error"><i class="fa-solid fa-circle-exclamation"></i>{{ $message }}</p>
+						@enderror
+					</div>
 
-                <div>
-                    <label for="password_confirmation" class="mb-1.5 block text-sm font-semibold text-slate-700">Konfirmasi Password</label>
-                    <input
-                        id="password_confirmation"
-                        type="password"
-                        name="password_confirmation"
-                        required
-                        autocomplete="new-password"
-                        class="input-anim block w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-cyan-500"
-                        placeholder="Ulangi password"
-                    >
-                    @error('password_confirmation')
-                        <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
-                    @enderror
-                </div>
+					<div class="form-group">
+						<label for="email" class="form-label">Email</label>
+						<div class="input-wrap">
+							<span class="input-icon"><i class="fa-regular fa-envelope"></i></span>
+							<input
+								id="email"
+								type="email"
+								name="email"
+								value="{{ old('email') }}"
+								required
+								autocomplete="username"
+								class="form-input @error('email') is-invalid @enderror"
+								placeholder="nama@email.com"
+							>
+						</div>
+						@error('email')
+							<p class="form-error"><i class="fa-solid fa-circle-exclamation"></i>{{ $message }}</p>
+						@enderror
+					</div>
 
-                <button type="submit" class="glow-btn w-full rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-700/30">
-                    Register
-                </button>
+					<div class="form-group">
+						<label for="password" class="form-label">Password</label>
+						<div class="input-wrap">
+							<span class="input-icon"><i class="fa-solid fa-lock"></i></span>
+							<input
+								id="password"
+								type="password"
+								name="password"
+								required
+								autocomplete="new-password"
+								class="form-input @error('password') is-invalid @enderror"
+								placeholder="Minimal 8 karakter"
+								style="padding-right: 44px;"
+							>
+							<button type="button" class="password-toggle" data-toggle-password data-target="password" aria-label="Tampilkan password">
+								<i class="fa-regular fa-eye"></i>
+							</button>
+						</div>
+						@error('password')
+							<p class="form-error"><i class="fa-solid fa-circle-exclamation"></i>{{ $message }}</p>
+						@enderror
+					</div>
 
-                <p class="text-center text-sm text-slate-600">
-                    Sudah punya akun?
-                    <a href="{{ route('login') }}" class="font-semibold text-cyan-700 transition hover:text-cyan-500">Login di sini</a>
-                </p>
-            </form>
-        </section>
-    </main>
+					<div class="form-group">
+						<label for="password_confirmation" class="form-label">Confirm Password</label>
+						<div class="input-wrap">
+							<span class="input-icon"><i class="fa-solid fa-lock"></i></span>
+							<input
+								id="password_confirmation"
+								type="password"
+								name="password_confirmation"
+								required
+								autocomplete="new-password"
+								class="form-input @error('password_confirmation') is-invalid @enderror"
+								placeholder="Ulangi password"
+								style="padding-right: 44px;"
+							>
+							<button type="button" class="password-toggle" data-toggle-password data-target="password_confirmation" aria-label="Tampilkan konfirmasi password">
+								<i class="fa-regular fa-eye"></i>
+							</button>
+						</div>
+						@error('password_confirmation')
+							<p class="form-error"><i class="fa-solid fa-circle-exclamation"></i>{{ $message }}</p>
+						@enderror
+					</div>
 
-    <script>
-        window.addEventListener('load', function () {
-            document.body.classList.add('loaded');
-        });
-    </script>
+					<button type="submit" class="form-button">Register</button>
+
+					<p class="form-footer">
+						Sudah punya akun?
+						<a href="{{ route('login') }}">Login</a>
+					</p>
+				</form>
+			</section>
+		</div>
+	</main>
+
+	<script src="{{ asset('js/auth.js') }}"></script>
 </body>
 </html>
