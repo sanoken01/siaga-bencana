@@ -1911,8 +1911,9 @@
                 // Center pada Jawa (-7.0726, 110.3927)
                 map = L.map('interactiveMap').setView([-7.0726, 110.3927], 8);
 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors',
+                // Satellite imagery dari ESRI
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: '© ESRI, DigitalGlobe, GeoEye, Earthstar Geographics',
                     maxZoom: 19,
                     minZoom: 6
                 }).addTo(map);
@@ -1937,7 +1938,7 @@
 
         function getMarkerIcon(color) {
             const html = `
-                <div class="custom-marker" style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #333; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>
+                <div class="custom-marker" style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 0 0 2px #333, 0 3px 8px rgba(0,0,0,0.5);"></div>
             `;
             console.log('Creating marker with color:', color, 'HTML:', html);
             
