@@ -27,9 +27,10 @@ class ReportController extends Controller
             'report_date' => 'required|date',
             'description' => 'required|string',
             'status' => 'nullable|in:Diproses,Diverifikasi,Selesai',
+            'disaster_status' => 'nullable|in:Terjadi,Prediksi,Selesai',
         ]);
 
-        Report::create($request->all());
+        Report::create(array_merge($request->all(), ['disaster_status' => $request->input('disaster_status', 'Prediksi')]));
 
         return redirect()->route('reports.index')
                          ->with('success', 'Laporan berhasil ditambahkan!');
@@ -49,9 +50,10 @@ class ReportController extends Controller
             'report_date' => 'required|date',
             'description' => 'required|string',
             'status' => 'nullable|in:Diproses,Diverifikasi,Selesai',
+            'disaster_status' => 'nullable|in:Terjadi,Prediksi,Selesai',
         ]);
 
-        $report->update($request->all());
+        $report->update(array_merge($request->all(), ['disaster_status' => $request->input('disaster_status', $report->disaster_status ?? 'Prediksi')]));
 
         return redirect()->route('reports.index')
                          ->with('success', 'Laporan berhasil diperbarui!');

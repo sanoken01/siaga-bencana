@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Donation;
 
 class Report extends Model
 {
@@ -24,4 +25,9 @@ class Report extends Model
         'latitude' => 'float',
         'longitude' => 'float',
     ];
+
+    public function donations()
+    {
+        return $this->hasMany(Donation::class);
+    }
 }

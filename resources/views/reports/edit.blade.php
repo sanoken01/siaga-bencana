@@ -393,13 +393,13 @@
                         @endphp
 
                         <div class="field">
-                            <label for="status" class="field-label">⚠ Status</label>
-                            <select id="status" name="status" class="select">
-                                <option value="Diproses" {{ $statusKey === 'Diproses' ? 'selected' : '' }}>Pending</option>
-                                <option value="Diverifikasi" {{ $statusKey === 'Diverifikasi' ? 'selected' : '' }}>Verified</option>
-                                <option value="Selesai" {{ $statusKey === 'Selesai' ? 'selected' : '' }}>Danger</option>
+                            <label for="disaster_status" class="field-label">⚠ Status Bencana</label>
+                            <select id="disaster_status" name="disaster_status" class="select">
+                                <option value="Terjadi" {{ old('disaster_status', $report->disaster_status) === 'Terjadi' ? 'selected' : '' }}>Terjadi</option>
+                                <option value="Prediksi" {{ old('disaster_status', $report->disaster_status) === 'Prediksi' ? 'selected' : '' }}>Prediksi</option>
+                                <option value="Selesai" {{ old('disaster_status', $report->disaster_status) === 'Selesai' ? 'selected' : '' }}>Selesai</option>
                             </select>
-                            <p class="error-text">@error('status') {{ $message }} @enderror</p>
+                            <p class="error-text">@error('disaster_status') {{ $message }} @enderror</p>
                         </div>
 
                         <div class="button-row">

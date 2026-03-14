@@ -885,13 +885,105 @@
             border: 1px solid #ccc;
         }
 
+        .disaster-status.prediksi-sangat-tinggi {
+            background: #d13612;
+        }
+
         .disaster-status.prediksi-tinggi {
             background: #FFA500;
         }
 
-        .disaster-status.prediksi-rendah {
-            background: #FFFF00;
+        .disaster-status.prediksi-sedang {
+            background: #FFD700;
             color: #333;
+        }
+
+        .disaster-status.prediksi-rendah {
+            background: #9ddf59;
+            color: #333;
+        }
+
+        .donate-button {
+            display: inline-block;
+            margin-top: 0.65rem;
+            padding: 0.35rem 0.6rem;
+            background: #10b981;
+            color: #fff;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            border: 1px solid #0a8f66;
+            font-size: 0.77rem;
+        }
+
+        .donate-button:hover {
+            background: #0f8f68;
+        }
+
+        .prediction-detail {
+            margin-top: 0.45rem;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: #f8fbff;
+            border-radius: 10px;
+            padding: 0.45rem;
+            font-size: 0.8rem;
+            color: #243d71;
+        }
+
+        .prediction-progress {
+            width: 100%;
+            height: 8px;
+            margin-top: 0.15rem;
+            border-radius: 999px;
+            background: rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.2s ease;
+        }
+
+        .prediction-note {
+            margin: 0.35rem 0 0 0;
+            font-size: 0.75rem;
+            color: #426eb5;
+            font-weight: 600;
+        }
+
+        .risk-factors {
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(0,0,0,0.08);
+        }
+
+        .risk-factors p {
+            margin: 0 0 0.3rem 0;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #2c4a7c;
+        }
+
+        .risk-factors ul {
+            margin: 0;
+            padding-left: 1rem;
+            list-style: none;
+        }
+
+        .risk-factors li {
+            font-size: 0.7rem;
+            color: #4a5d7a;
+            margin-bottom: 0.2rem;
+            position: relative;
+        }
+
+        .risk-factors li:before {
+            content: '•';
+            color: #4facfe;
+            font-weight: bold;
+            position: absolute;
+            left: -0.8rem;
         }
 
         .leaflet-marker-icon {
@@ -1552,19 +1644,27 @@
                         <h4>Legenda Status</h4>
                         <div class="legend-item">
                             <div class="legend-color" style="background-color: #FF0000;"></div>
-                            <span>Gempa Terjadi (Merah)</span>
+                            <span>Bencana Terjadi</span>
                         </div>
                         <div class="legend-item">
-                            <div class="legend-color" style="background-color: #FFFFFF; border: 2px solid #999;"></div>
-                            <span>Bencana Selesai (Putih)</span>
+                            <div class="legend-color" style="background-color: #d13612;"></div>
+                            <span>Prediksi Sangat Tinggi (≥75%)</span>
                         </div>
                         <div class="legend-item">
                             <div class="legend-color" style="background-color: #FFA500;"></div>
-                            <span>Prediksi ≥50% (Orange)</span>
+                            <span>Prediksi Tinggi (50-74%)</span>
                         </div>
                         <div class="legend-item">
-                            <div class="legend-color" style="background-color: #FFFF00;"></div>
-                            <span>Prediksi &lt;50% (Kuning)</span>
+                            <div class="legend-color" style="background-color: #FFD700;"></div>
+                            <span>Prediksi Sedang (30-49%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #9ddf59;"></div>
+                            <span>Prediksi Rendah (&lt;30%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #FFFFFF; border: 2px solid #999;"></div>
+                            <span>Bencana Selesai</span>
                         </div>
                     </div>
                 </div>
@@ -1927,12 +2027,96 @@
                 return '#FF0000'; // Merah untuk bencana sedang terjadi
             } else if (disaster.status === 'Selesai') {
                 return '#FFFFFF'; // Putih untuk bencana selesai
-            } else { // Prediksi
-                if (disaster.prediction >= 50) {
-                    return '#FFA500'; // Orange untuk prediksi >= 50%
-                } else {
-                    return '#FFFF00'; // Kuning untuk prediksi < 50%
-                }
+            }
+
+            // Prediksi: beri gradien warna berdasarkan level risiko
+            if (disaster.prediction >= 75) {
+                return '#d13612'; // Merah gelap untuk prediksi sangat tinggi
+            } else if (disaster.prediction >= 50) {
+                return '#FFA500'; // Orange untuk prediksi tinggi
+            } else if (disaster.prediction >= 30) {
+                return '#FFD700'; // Kuning untuk prediksi sedang
+            } else {
+                return '#9ddf59'; // Hijau muda untuk prediksi rendah
+            }
+        }
+
+        function getPredictionRisk(disaster) {
+            const baseRisk = {
+                prediction: disaster.prediction,
+                type: disaster.type,
+                location: disaster.location
+            };
+
+            let factors = [];
+
+            // Faktor berdasarkan jenis bencana
+            if (disaster.type === 'Gempa Bumi') {
+                factors = [
+                    'Aktivitas seismik tinggi di zona patahan',
+                    'Riwayat gempa bumi signifikan',
+                    'Kedalaman hiposenter dangkal',
+                    'Tren peningkatan aktivitas tektonik'
+                ];
+            } else if (disaster.type === 'Banjir') {
+                factors = [
+                    'Curah hujan ekstrem dalam 24 jam',
+                    'Luapan sungai dan drainase buruk',
+                    'Ketinggian air di atas normal',
+                    'Luas area genangan bertambah'
+                ];
+            } else if (disaster.type === 'Tanah Longsor') {
+                factors = [
+                    'Kemiringan lereng >30 derajat',
+                    'Curah hujan intensif berkepanjangan',
+                    'Kondisi tanah jenuh air',
+                    'Vegetasi penutup tanah berkurang'
+                ];
+            } else if (disaster.type === 'Tsunami') {
+                factors = [
+                    'Gempa bawah laut magnitude tinggi',
+                    'Lokasi epikenter dekat pantai',
+                    'Kedalaman laut dangkal',
+                    'Potensi gelombang tinggi'
+                ];
+            } else {
+                factors = [
+                    'Kondisi cuaca ekstrem',
+                    'Faktor geografis lokal',
+                    'Aktivitas vulkanik',
+                    'Perubahan iklim regional'
+                ];
+            }
+
+            // Penyesuaian berdasarkan persentase
+            if (disaster.prediction >= 75) {
+                return {
+                    label: 'Sangat Tinggi',
+                    className: 'prediksi-sangat-tinggi',
+                    factors: factors,
+                    recommendation: 'Evakuasi segera, siapkan rencana darurat'
+                };
+            } else if (disaster.prediction >= 50) {
+                return {
+                    label: 'Tinggi',
+                    className: 'prediksi-tinggi',
+                    factors: factors,
+                    recommendation: 'Waspada tinggi, siapkan evakuasi'
+                };
+            } else if (disaster.prediction >= 30) {
+                return {
+                    label: 'Sedang',
+                    className: 'prediksi-sedang',
+                    factors: factors,
+                    recommendation: 'Monitor terus, siap siaga'
+                };
+            } else {
+                return {
+                    label: 'Rendah',
+                    className: 'prediksi-rendah',
+                    factors: factors,
+                    recommendation: 'Tetap waspada, pantau perkembangan'
+                };
             }
         }
 
@@ -1940,8 +2124,6 @@
             const html = `
                 <div class="custom-marker" style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 0 0 2px #333, 0 3px 8px rgba(0,0,0,0.5);"></div>
             `;
-            console.log('Creating marker with color:', color, 'HTML:', html);
-            
             return L.divIcon({
                 html: html,
                 iconSize: [32, 32],
@@ -1954,22 +2136,38 @@
         function createPopupContent(disaster) {
             let statusClass = '';
             let statusText = '';
+            let extraStatusHtml = '';
 
             if (disaster.status === 'Terjadi') {
                 statusClass = 'sedang-terjadi';
                 statusText = 'SEDANG TERJADI';
+                extraStatusHtml = '<p><strong>Status:</strong> Respon darurat dibutuhkan segera</p>';
             } else if (disaster.status === 'Selesai') {
                 statusClass = 'selesai';
                 statusText = 'SELESAI';
+                extraStatusHtml = '<p><strong>Status:</strong> Situasi terkendali</p>';
             } else {
-                if (disaster.prediction >= 50) {
-                    statusClass = 'prediksi-tinggi';
-                    statusText = `PREDIKSI ${disaster.prediction}%`;
-                } else {
-                    statusClass = 'prediksi-rendah';
-                    statusText = `PREDIKSI ${disaster.prediction}%`;
-                }
+                const risk = getPredictionRisk(disaster);
+                statusClass = risk.className;
+                statusText = `PREDIKSI ${risk.label}`;
+                extraStatusHtml = `
+                    <div class="prediction-detail">
+                        <p><strong>Probabilitas:</strong> ${disaster.prediction}%</p>
+                        <div class="prediction-progress">
+                            <div class="progress-bar" style="width: ${Math.max(6, disaster.prediction)}%; background: ${getMarkerColor(disaster)};"></div>
+                        </div>
+                        <p class="prediction-note">${risk.recommendation}</p>
+                        <div class="risk-factors">
+                            <p><strong>Faktor Risiko:</strong></p>
+                            <ul>
+                                ${risk.factors.map(factor => `<li>${factor}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
             }
+
+            const donateButton = disaster.status === 'Selesai' ? `<a class="donate-button" href="/reports/${disaster.id}/donate" target="_blank" rel="noopener">Donasi Sekarang</a>` : '';
 
             return `
                 <div class="disaster-marker-popup">
@@ -1978,10 +2176,12 @@
                     <p><strong>Lokasi:</strong> ${disaster.location}</p>
                     <p><strong>Tanggal:</strong> ${disaster.date}</p>
                     <p><strong>Deskripsi:</strong> ${disaster.description}</p>
-                    <div>
+                    ${extraStatusHtml}
+                    <div style="margin-top:0.5rem; display:grid; grid-template-columns:1fr auto; gap:0.4rem; align-items:center;">
                         <span class="disaster-type">${disaster.type}</span>
                         <span class="disaster-status ${statusClass}">${statusText}</span>
                     </div>
+                    ${donateButton}
                 </div>
             `;
         }

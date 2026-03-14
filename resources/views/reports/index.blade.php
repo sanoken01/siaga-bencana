@@ -521,27 +521,18 @@
                             default => '⚠',
                         };
 
-                        $normalizedStatus = strtolower($report->status);
-
-                        if (str_contains($normalizedStatus, 'verifikasi') || str_contains($normalizedStatus, 'verified')) {
-                            $statusClass = 'status-verified';
-                            $statusLabel = 'Verified';
-                        } elseif (str_contains($normalizedStatus, 'proses') || str_contains($normalizedStatus, 'pending')) {
-                            $statusClass = 'status-pending';
-                            $statusLabel = 'Pending';
-                        } else {
+                        $disasterStatus = $report->disaster_status ?? 'Prediksi';
+                        if ($disasterStatus === 'Terjadi') {
                             $statusClass = 'status-danger';
-                            $statusLabel = 'Danger';
+                            $statusLabel = 'Terjadi';
+                        } elseif ($disasterStatus === 'Selesai') {
+                            $statusClass = 'status-verified';
+                            $statusLabel = 'Selesai';
+                        } else {
+                            $statusClass = 'status-pending';
+                            $statusLabel = 'Prediksi';
                         }
-                    @endphp
-
-                    <article class="report-card">
-                        <div class="report-head">
-                            <span class="disaster-icon" aria-hidden="true">{{ $disasterIcon }}</span>
-                            <span class="status-badge {{ $statusClass }}">{{ $statusLabel }}</span>
-                        </div>
-
-                        <h2 class="report-title">{{ $report->title }}</h2>
+                        @endphp
 
                         <ul class="meta-list">
                             <li class="meta-item">
@@ -560,6 +551,10 @@
 
                         <div class="action-row">
                             <a href="{{ route('reports.edit', $report->id) }}" class="btn-action btn-edit">Edit</a>
+
+                            @if (($report->disaster_status ?? '') === 'Selesai')
+                                <a href="{{ route('reports.donate', $report->id) }}" class="btn-action btn-verified" style="background:#10b981; color:#fff; border: 1px solid #059669;">Donasi</a>
+                            @endif
 
                             <form class="delete-form" action="{{ route('reports.destroy', $report->id) }}" method="POST">
                                 @csrf

@@ -434,6 +434,16 @@
                     @csrf
                     <input type="hidden" name="status" value="{{ old('status', 'Diproses') }}">
 
+                    <div class="field">
+                        <label for="disaster_status" class="field-label">Status Bencana</label>
+                        <select id="disaster_status" name="disaster_status" class="select" required>
+                            <option value="Terjadi" {{ old('disaster_status') === 'Terjadi' ? 'selected' : '' }}>Terjadi</option>
+                            <option value="Prediksi" {{ old('disaster_status', 'Prediksi') === 'Prediksi' ? 'selected' : '' }}>Prediksi</option>
+                            <option value="Selesai" {{ old('disaster_status') === 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                        </select>
+                        <p class="error-text">@error('disaster_status') {{ $message }} @enderror</p>
+                    </div>
+
                     <div class="grid">
                         <div class="field-group">
                             <label for="title" class="field-label">

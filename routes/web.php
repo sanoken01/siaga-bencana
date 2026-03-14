@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\DonationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -21,6 +22,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::resource('reports', ReportController::class);
+Route::get('reports/{report}/donate', [DonationController::class, 'create'])->name('reports.donate');
+Route::post('reports/{report}/donate', [DonationController::class, 'store'])->name('reports.donate.store');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
