@@ -96,7 +96,7 @@
             text-decoration: none;
             border-radius: var(--radius-pill);
             border: 1px solid var(--line);
-            background: var(--surface-soft);
+            background: #ffffff;
             color: #145ea8;
             padding: 10px 16px;
             font-size: 0.9rem;
@@ -178,14 +178,14 @@
         }
 
         .report-card {
-            background: var(--surface);
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            background: #ffffff;
+            border: 1px solid rgba(79, 172, 254, 0.22);
             border-radius: var(--radius-xl);
             box-shadow: var(--shadow-soft);
-            padding: 18px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 16px;
             transition: var(--transition);
         }
 
@@ -248,7 +248,24 @@
             font-weight: 700;
             color: #14355f;
             line-height: 1.5;
-            min-height: 48px;
+            margin-bottom: 6px;
+        }
+
+        .report-desc {
+            color: #556d8b;
+            font-size: 0.86rem;
+            line-height: 1.55;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .report-details {
+            border-radius: 14px;
+            border: 1px solid rgba(79, 172, 254, 0.14);
+            background: #f8fcff;
+            padding: 10px;
         }
 
         .meta-list {
@@ -263,7 +280,7 @@
             justify-content: space-between;
             gap: 10px;
             border-radius: var(--radius-md);
-            border: 1px solid rgba(79, 172, 254, 0.11);
+            border: 1px solid rgba(79, 172, 254, 0.15);
             background: #fff;
             padding: 9px 11px;
         }
@@ -305,19 +322,34 @@
         }
 
         .btn-edit {
-            background: rgba(79, 172, 254, 0.16);
-            border: 1px solid rgba(79, 172, 254, 0.3);
-            color: #1360b4;
+            background: #2f8fdf;
+            border: 1px solid #2f8fdf;
+            color: #ffffff;
+            box-shadow: 0 10px 18px rgba(47, 143, 223, 0.24);
         }
 
         .btn-edit:hover {
             transform: translateY(-2px);
-            background: rgba(79, 172, 254, 0.22);
+            background: #1f7cca;
+            border-color: #1f7cca;
+        }
+
+        .btn-donate {
+            background: #10b981;
+            border: 1px solid #10b981;
+            color: #ffffff;
+            box-shadow: 0 10px 18px rgba(16, 185, 129, 0.22);
+        }
+
+        .btn-donate:hover {
+            transform: translateY(-2px);
+            background: #059669;
+            border-color: #059669;
         }
 
         .btn-delete {
-            background: transparent;
-            border: 1px solid rgba(239, 68, 68, 0.55);
+            background: #ffffff;
+            border: 1px solid #f87171;
             color: #b91c1c;
         }
 
@@ -532,28 +564,42 @@
                             $statusClass = 'status-pending';
                             $statusLabel = 'Prediksi';
                         }
-                        @endphp
+                    @endphp
 
-                        <ul class="meta-list">
-                            <li class="meta-item">
-                                <span class="meta-label">Jenis Bencana</span>
-                                <span class="meta-value">{{ $report->disaster_type }}</span>
-                            </li>
-                            <li class="meta-item">
-                                <span class="meta-label">Lokasi</span>
-                                <span class="meta-value">{{ $report->location }}</span>
-                            </li>
-                            <li class="meta-item">
-                                <span class="meta-label">Tanggal</span>
-                                <span class="meta-value">{{ \Carbon\Carbon::parse($report->report_date)->translatedFormat('d M Y') }}</span>
-                            </li>
-                        </ul>
+                    <article class="report-card">
+                        <div class="report-head">
+                            <div style="display:flex; gap:12px; align-items:flex-start;">
+                                <span class="disaster-icon" aria-hidden="true">{{ $disasterIcon }}</span>
+                                <div>
+                                    <h2 class="report-title">{{ $report->title }}</h2>
+                                    <p class="report-desc">{{ $report->description }}</p>
+                                </div>
+                            </div>
+                            <span class="status-badge {{ $statusClass }}">{{ $statusLabel }}</span>
+                        </div>
+
+                        <div class="report-details">
+                            <ul class="meta-list">
+                                <li class="meta-item">
+                                    <span class="meta-label">Jenis Bencana</span>
+                                    <span class="meta-value">{{ $report->disaster_type }}</span>
+                                </li>
+                                <li class="meta-item">
+                                    <span class="meta-label">Lokasi</span>
+                                    <span class="meta-value">{{ $report->location }}</span>
+                                </li>
+                                <li class="meta-item">
+                                    <span class="meta-label">Tanggal</span>
+                                    <span class="meta-value">{{ \Carbon\Carbon::parse($report->report_date)->translatedFormat('d M Y') }}</span>
+                                </li>
+                            </ul>
+                        </div>
 
                         <div class="action-row">
                             <a href="{{ route('reports.edit', $report->id) }}" class="btn-action btn-edit">Edit</a>
 
                             @if (($report->disaster_status ?? '') === 'Selesai')
-                                <a href="{{ route('reports.donate', $report->id) }}" class="btn-action btn-verified" style="background:#10b981; color:#fff; border: 1px solid #059669;">Donasi</a>
+                                <a href="{{ route('reports.donate', $report->id) }}" class="btn-action btn-donate">Donasi</a>
                             @endif
 
                             <form class="delete-form" action="{{ route('reports.destroy', $report->id) }}" method="POST">

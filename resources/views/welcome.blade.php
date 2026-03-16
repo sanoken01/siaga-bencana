@@ -239,6 +239,151 @@
             box-shadow: 0 10px 22px rgba(0, 85, 153, 0.18);
         }
 
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .profile-dropdown-wrap {
+            position: relative;
+        }
+
+        .profile-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.4rem 0.7rem 0.4rem 0.42rem;
+            border-radius: var(--radius-pill);
+            border: 1px solid rgba(79, 172, 254, 0.26);
+            background: rgba(255, 255, 255, 0.92);
+            color: #0c4f8a;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: box-shadow var(--transition-fast), transform var(--transition-fast), border-color var(--transition-fast);
+        }
+
+        .profile-trigger:hover {
+            transform: translateY(-1px);
+            border-color: rgba(0, 142, 255, 0.42);
+            box-shadow: 0 10px 20px rgba(0, 109, 190, 0.14);
+        }
+
+        .profile-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(79, 172, 254, 0.28);
+        }
+
+        .profile-avatar--fallback {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4facfe, #00c6ff);
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.15);
+            transition: box-shadow var(--transition-fast);
+        }
+
+        .profile-trigger:hover .profile-avatar--fallback,
+        .profile-trigger:hover .profile-avatar {
+            box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.24);
+        }
+
+        .profile-name {
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+
+        .profile-chevron {
+            font-size: 0.78rem;
+            color: #2f7ebd;
+            transition: transform var(--transition-fast);
+        }
+
+        .profile-dropdown-wrap.is-open .profile-chevron {
+            transform: rotate(180deg);
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 10px);
+            min-width: 210px;
+            border-radius: 14px;
+            border: 1px solid rgba(79, 172, 254, 0.2);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 14px 32px rgba(8, 63, 122, 0.16);
+            padding: 0.45rem;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: opacity 0.22s ease, transform 0.22s ease;
+            z-index: 1500;
+        }
+
+        .profile-dropdown-wrap.is-open .profile-dropdown {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.62rem;
+            width: 100%;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: #154a7c;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            text-align: left;
+            padding: 0.62rem 0.7rem;
+            cursor: pointer;
+            transition: background var(--transition-fast), color var(--transition-fast);
+        }
+
+        .profile-menu-item:hover {
+            background: rgba(79, 172, 254, 0.12);
+            color: #0f5e9e;
+        }
+
+        .profile-menu-item i {
+            width: 16px;
+            text-align: center;
+            color: #2f81c3;
+        }
+
+        .profile-menu-divider {
+            height: 1px;
+            margin: 0.26rem 0;
+            background: rgba(15, 95, 160, 0.12);
+        }
+
+        .profile-logout {
+            color: #b23b3b;
+        }
+
+        .profile-logout i {
+            color: #c24a4a;
+        }
+
         /* ============================================================
            HERO SECTION SUPER STARTUP
         ============================================================ */
@@ -1512,6 +1657,14 @@
                 gap: 0.95rem;
             }
 
+            .nav-actions {
+                margin-top: 0.25rem;
+            }
+
+            .profile-name {
+                max-width: 180px;
+            }
+
             .hero {
                 padding-top: 164px;
             }
@@ -1562,14 +1715,58 @@
                 <li><a href="#kontak">Kontak</a></li>
             </ul>
 
-            <a href="{{ route('login') }}" class="btn-login-admin">
-                <i class="fa-solid fa-user-shield"></i>
-                Login
-            </a>
-            <a href="{{ route('register') }}" class="btn-register">
-                <i class="fa-solid fa-user-plus"></i>
-                Daftar
-            </a>
+            <div class="nav-actions">
+                @guest
+                    <a href="{{ route('login') }}" class="btn-login-admin">
+                        <i class="fa-solid fa-user-shield"></i>
+                        Login
+                    </a>
+                    <a href="{{ route('register') }}" class="btn-register">
+                        <i class="fa-solid fa-user-plus"></i>
+                        Daftar
+                    </a>
+                @endguest
+
+                @auth
+                    @php
+                        $authUser = Auth::user();
+                        $avatarUrl = $authUser->getAttribute('avatar') ?? $authUser->getAttribute('photo') ?? null;
+                        $nameParts = preg_split('/\s+/', trim($authUser->name ?? 'User'));
+                        $initials = strtoupper(
+                            mb_substr($nameParts[0] ?? 'U', 0, 1)
+                            . mb_substr($nameParts[1] ?? '', 0, 1)
+                        );
+                    @endphp
+
+                    <div class="profile-dropdown-wrap" data-profile-dropdown>
+                        <button type="button" class="profile-trigger" data-profile-toggle aria-expanded="false" aria-haspopup="true">
+                            @if ($avatarUrl)
+                                <img src="{{ $avatarUrl }}" alt="Avatar {{ $authUser->name }}" class="profile-avatar">
+                            @else
+                                <span class="profile-avatar--fallback">{{ $initials }}</span>
+                            @endif
+                            <span class="profile-name">{{ $authUser->name }}</span>
+                            <i class="fa-solid fa-chevron-down profile-chevron"></i>
+                        </button>
+
+                        <div class="profile-dropdown" data-profile-menu>
+                            <a href="{{ route('profile.edit') }}" class="profile-menu-item">
+                                <i class="fa-regular fa-user"></i>
+                                Profil Saya
+                            </a>
+                
+                            <div class="profile-menu-divider"></div>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="profile-menu-item profile-logout">
+                                    <i class="fa-solid fa-right-from-bracket"></i>
+                                    Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @endauth
+            </div>
         </div>
     </header>
 
@@ -2265,7 +2462,27 @@
             const backToTopBtn = document.getElementById('backToTop');
             const revealElements = document.querySelectorAll('.reveal');
             const counterElements = document.querySelectorAll('[data-counter]');
+            const profileDropdownWrap = document.querySelector('[data-profile-dropdown]');
+            const profileToggle = document.querySelector('[data-profile-toggle]');
             let counterTriggered = false;
+
+            function closeProfileDropdown() {
+                if (!profileDropdownWrap || !profileToggle) {
+                    return;
+                }
+
+                profileDropdownWrap.classList.remove('is-open');
+                profileToggle.setAttribute('aria-expanded', 'false');
+            }
+
+            function toggleProfileDropdown() {
+                if (!profileDropdownWrap || !profileToggle) {
+                    return;
+                }
+
+                const isOpen = profileDropdownWrap.classList.toggle('is-open');
+                profileToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            }
 
             function updateNavbarAndButtons() {
                 const scrollY = window.scrollY;
@@ -2343,6 +2560,25 @@
                 revealOnScroll();
                 triggerCounters();
             });
+
+            if (profileToggle) {
+                profileToggle.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    toggleProfileDropdown();
+                });
+
+                document.addEventListener('click', function (event) {
+                    if (!profileDropdownWrap.contains(event.target)) {
+                        closeProfileDropdown();
+                    }
+                });
+
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape') {
+                        closeProfileDropdown();
+                    }
+                });
+            }
 
             backToTopBtn.addEventListener('click', function () {
                 window.scrollTo({

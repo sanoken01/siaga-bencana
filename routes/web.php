@@ -7,15 +7,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
 
 Route::get('/api/disaster-data', [ReportController::class, 'getDisasterData']);
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
     })->middleware('admin')->name('admin.dashboard');
