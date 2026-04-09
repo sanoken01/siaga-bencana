@@ -11,10 +11,15 @@
         p { color: #3d4f70; margin-bottom: 14px; }
         label { display: block; margin-bottom: 6px; font-weight: 600; }
         input, textarea, select { width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 10px; margin-bottom: 12px; font: inherit; }
-        button { border: none; background: #0b76d9; color: #fff; padding: 11px 14px; border-radius: 8px; cursor: pointer; font-weight: 700; }
+        button { border: none; background: #0b76d9; color: #fff; padding: 11px 14px; border-radius: 8px; cursor: pointer; font-weight: 700; width: 100%; }
         button:hover { background: #0a64b8; }
         .nav { margin-bottom: 14px; display: inline-block; text-decoration: none; color: #0f4b90; }
         .error { color: #dc2626; margin-bottom: 8px; font-size: 0.9rem; }
+        .goal-card { background: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 14px; margin-bottom: 18px; }
+        .goal-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 600; }
+        .progress-bar-bg { background: #e5e7eb; border-radius: 999px; height: 8px; overflow: hidden; margin-bottom: 8px; }
+        .progress-bar-fill { background: linear-gradient(90deg, #10b981, #059669); height: 100%; border-radius: 999px; }
+        .goal-text { font-size: 0.9rem; color: #3d4f70; }
     </style>
 </head>
 <body>
@@ -22,6 +27,26 @@
         <a class="nav" href="{{ route('reports.index') }}">← Kembali ke daftar laporan</a>
         <h1>Donasi untuk: {{ $report->title }}</h1>
         <p>Ini adalah laporan bencana yang sudah selesai. Donasi akan membantu pemulihan.</p>
+
+        @php
+            $collected = $report->getTotalDonations();
+            $goal = $report->goal_amount ?? 1000000;
+            $percentage = min(100, ($collected / $goal) * 100);
+        @endphp
+
+        <div class="goal-card">
+            <div class="goal-header">
+                <span>Target Terkumpul</span>
+                <span style="color: #10b981;">{{ round($percentage, 1) }}%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" style="width: {{ $percentage }}%;"></div>
+            </div>
+            <div class="goal-text">
+                <p><strong>Rp {{ number_format($collected, 0, ',', '.') }}</strong> dari Rp {{ number_format($goal, 0, ',', '.') }}</p>
+                <p style="color: #6b7280; margin-top: 4px;">@if ($percentage >= 100) <span style="color: #10b981;">✓ Target tercapai!</span> @else Sisa: Rp {{ number_format($goal - $collected, 0, ',', '.') }} @endif</p>
+            </div>
+        </div>
 
         <form method="POST" action="{{ route('reports.donate.store', $report->id) }}">
             @csrf

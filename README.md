@@ -1,11 +1,99 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🗺️ Siaga Bencana - Sistem Peta Bencana Real-Time Indonesia
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> Platform monitoring dan reporting bencana Indonesia dengan peta interaktif real-time menggunakan Leaflet.js
+
+![Laravel](https://img.shields.io/badge/Laravel-11+-red)
+![PHP](https://img.shields.io/badge/PHP-8.2+-blue)
+![Database](https://img.shields.io/badge/Database-SQLite-green)
+![Status](https://img.shields.io/badge/Status-Active-brightgreen)
+
+---
+
+## 🚀 Quick Start (Untuk Teman yang Clone)
+
+**⚡ Jika Anda baru clone repository ini, ikuti langkah ini untuk mendapatkan DATA BENCANA:**
+
+```bash
+# 1. Install dependencies
+composer install
+npm install
+
+# 2. Setup environment
+cp .env.example .env
+php artisan key:generate
+
+# 3. Buat database dan isi data bencana
+php artisan migrate --force
+php artisan db:seed --class=JavaDisasterSeeder
+
+# 4. Jalankan server
+php artisan serve
+
+# 5. Buka browser: http://localhost:8000
+```
+
+📖 **Baca panduan lengkap**: [DATA_SETUP.md](DATA_SETUP.md)
+
+---
+
+## 📋 Dokumentasi Lengkap
+
+| Dokumen | Deskripsi |
+|---------|-----------|
+| [**DATA_SETUP.md**](DATA_SETUP.md) | ⭐ Setup data bencana untuk developer baru |
+| [**QUICK_START_PETA_BENCANA.md**](QUICK_START_PETA_BENCANA.md) | Quick start penggunaan peta |
+| [**SETUP_PETA_BENCANA.md**](SETUP_PETA_BENCANA.md) | Implementasi detail fitur peta |
+| [**ARCHITECTURE.md**](ARCHITECTURE.md) | Arsitektur sistem & diagram |
+| [**VERIFICATION.md**](VERIFICATION.md) | Checklist verifikasi setiap feature |
+| [**IMPLEMENTATION_SUMMARY.md**](IMPLEMENTATION_SUMMARY.md) | Ringkasan implementasi |
+
+---
+
+## ✨ Fitur Utama
+
+- 🗺️ **Peta Interaktif**: Real-time disaster mapping dengan Leaflet.js
+- 📍 **Koordinat Real**: Lokasi akurat untuk setiap bencana di Indonesia
+- 🔴 **Status Bencana**: 
+  - 🔴 Sedang Terjadi (Merah)
+  - 🟠 Prediksi Tinggi (Orange)
+  - 🟡 Prediksi Rendah (Kuning)
+  - ⚪ Selesai (Putih)
+- 📊 **Data Terstruktur**: Database dengan schema jelas
+- 🔄 **Real-Time Updates**: Polling setiap 5 detik
+- 📱 **Responsive Design**: Mobile-friendly UI
+- 🔐 **Authentication Ready**: User roles & permissions
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | Laravel 11+, PHP 8.2+ |
+| **Frontend** | Blade Templates, Tailwind CSS, Vite |
+| **Database** | SQLite (file-based) |
+| **Maps** | Leaflet.js + OpenStreetMap |
+| **Package Manager** | Composer, npm |
+
+---
+
+## 📊 Data Bencana
+
+Setelah menjalankan seeder, database akan terisi dengan 9 contoh data bencana di wilayah Jawa:
+
+```
+✅ Surabaya - Gempa Bumi (Sedang Terjadi)
+✅ Jakarta Pusat - Banjir (Sedang Terjadi)  
+✅ Bandung - Prediksi Gempa (65%)
+✅ Yogyakarta - Tanah Longsor (Sedang Terjadi)
+✅ Semarang - Prediksi Tsunami (72%)
+✅ Majalengka - Gempa (Selesai)
+✅ Cilacap - Prediksi Banjir (35%)
+✅ Kediri - Gempa (Sedang Terjadi)
+✅ Puncak Bogor - Prediksi Longsor (78%)
+```
+
+---
 
 ## About Laravel
 

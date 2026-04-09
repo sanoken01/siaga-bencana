@@ -20,7 +20,7 @@
 
             <nav class="mt-10 space-y-2 text-sm">
                 <a href="{{ route('admin.dashboard') }}" class="block rounded-xl bg-cyan-500/20 px-4 py-3 font-semibold text-cyan-100">Dashboard</a>
-                <a href="#" class="block rounded-xl px-4 py-3 text-slate-300 transition hover:bg-slate-800 hover:text-white">Manajemen Data Bencana</a>
+                <a href="{{ route('admin.reports') }}" class="block rounded-xl px-4 py-3 text-slate-300 transition hover:bg-slate-800 hover:text-white">Manajemen Data Bencana</a>
                 <a href="#" class="block rounded-xl px-4 py-3 text-slate-300 transition hover:bg-slate-800 hover:text-white">Manajemen Pengguna</a>
                 <a href="#" class="block rounded-xl px-4 py-3 text-slate-300 transition hover:bg-slate-800 hover:text-white">Laporan & Verifikasi</a>
             </nav>

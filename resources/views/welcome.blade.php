@@ -2394,10 +2394,22 @@
                 .then(disasters => {
                     console.log('Disasters loaded:', disasters);
                     
-                    // Clear old markers
-                    Object.keys(markers).forEach(key => {
-                        map.removeLayer(markers[key]);
-                    });
+                    // Only proceed if map is initialized
+                    if (!map || typeof map.removeLayer !== 'function') {
+                        console.warn('Map not initialized yet');
+                        return;
+                    }
+                    
+                    // Clear old markers safely
+                    try {
+                        Object.keys(markers).forEach(key => {
+                            if (markers[key] && typeof map.removeLayer === 'function') {
+                                map.removeLayer(markers[key]);
+                            }
+                        });
+                    } catch (e) {
+                        console.warn('Error clearing markers:', e);
+                    }
                     markers = {};
 
                     if (disasters.length === 0) {
@@ -2449,7 +2461,7 @@
         });
 
         // Stop updates when page is hidden to save bandwidth
-        document.addEventListener('visibility-change', function() {
+        document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
                 stopRealTimeUpdates();
             } else if (map) {

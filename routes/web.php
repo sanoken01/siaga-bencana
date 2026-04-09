@@ -3,18 +3,28 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DonationController;
+use App\Http\Controllers\AdminReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-})->name('welcome');
+});
 
 Route::get('/api/disaster-data', [ReportController::class, 'getDisasterData']);
 
 Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
     })->middleware('admin')->name('admin.dashboard');
+
+    Route::middleware('admin')->group(function () {
+        Route::get('/admin/reports', [AdminReportController::class, 'index'])->name('admin.reports');
+        Route::patch('/admin/reports/{report}/goal', [AdminReportController::class, 'updateGoal'])->name('admin.report.goal');
+    });
 });
 
 Route::resource('reports', ReportController::class);
