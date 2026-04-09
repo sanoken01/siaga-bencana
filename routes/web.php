@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DonationController;
+use App\Http\Controllers\DonasiController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -10,6 +11,8 @@ Route::get('/', function () {
 })->name('welcome');
 
 Route::get('/api/disaster-data', [ReportController::class, 'getDisasterData']);
+Route::get('/donasi', [DonasiController::class, 'index'])->name('donasi');
+Route::post('/donasi', [DonasiController::class, 'store'])->name('donasi.store');
 
 Route::middleware('auth')->group(function () {
     Route::get('/admin/dashboard', function () {

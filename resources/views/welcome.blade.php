@@ -1785,9 +1785,9 @@
                 </p>
 
                 <div class="hero-cta">
-                    <a href="#peta" class="btn btn-primary">
+                    <a href="{{ route('donasi') }}" class="btn btn-primary">
                         <i class="fa-solid fa-bolt"></i>
-                        Pantau Peta Bencana
+                        Donasi Sekarang
                     </a>
                     <a href="#fitur" class="btn btn-secondary">
                         <i class="fa-solid fa-circle-info"></i>
@@ -2119,7 +2119,7 @@
                 Setiap dukungan Anda membantu tim relawan menyalurkan logistik, layanan medis,
                 dan perlindungan bagi warga terdampak di berbagai wilayah Indonesia.
             </p>
-            <a href="#" class="btn-donate">
+            <a href="{{ route('donasi') }}" class="btn-donate">
                 <i class="fa-solid fa-heart"></i>
                 Donasi Sekarang
             </a>
@@ -2364,7 +2364,7 @@
                 `;
             }
 
-            const donateButton = disaster.status === 'Selesai' ? `<a class="donate-button" href="/reports/${disaster.id}/donate" target="_blank" rel="noopener">Donasi Sekarang</a>` : '';
+            const donateButton = disaster.status === 'Selesai' ? `<a class="donate-button" href="{{ route('donasi') }}" target="_blank" rel="noopener">Donasi Sekarang</a>` : '';
 
             return `
                 <div class="disaster-marker-popup">
