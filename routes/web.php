@@ -5,8 +5,6 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DonationController;
 use App\Http\Controllers\AdminReportController;
 use App\Http\Controllers\DonasiController;
-
-dfcb684c521de64b193b162bfca4b79dc6e3e467
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {

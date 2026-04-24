@@ -19,6 +19,8 @@ class Report extends Model
         'prediction_percentage',
         'disaster_status',
         'goal_amount',
+        'unique_key',
+        'source',
     ];
 
     protected $casts = [

@@ -9,7 +9,7 @@ class ReportController extends Controller
 {
     public function index()
     {
-        $reports = Report::latest()->get();
+        $reports = Report::where('source', 'BUMN')->latest()->get();
         return view('reports.index', compact('reports'));
     }
 
@@ -72,6 +72,7 @@ class ReportController extends Controller
         $disasters = Report::whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->where('disaster_type', '!=', '')
+            ->where('source', 'BUMN')
             ->latest('report_date')
             ->get()
             ->map(function ($disaster) {

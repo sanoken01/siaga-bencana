@@ -22,6 +22,7 @@ class JavaDisasterSeeder extends Seeder
                 'status' => 'Diverifikasi',
                 'disaster_status' => 'Terjadi',
                 'prediction_percentage' => 0,
+                'source' => 'BUMN',
             ],
             // Banjir di Jakarta
             [
@@ -35,6 +36,7 @@ class JavaDisasterSeeder extends Seeder
                 'status' => 'Diproses',
                 'disaster_status' => 'Terjadi',
                 'prediction_percentage' => 0,
+                'source' => 'BUMN',
             ],
             // Prediksi Gempa Bandung Tinggi
             [
@@ -48,6 +50,7 @@ class JavaDisasterSeeder extends Seeder
                 'status' => 'Diverifikasi',
                 'disaster_status' => 'Prediksi',
                 'prediction_percentage' => 65,
+                'source' => 'BUMN',
             ],
             // Tanah Longsor di Yogyakarta
             [
@@ -61,6 +64,7 @@ class JavaDisasterSeeder extends Seeder
                 'status' => 'Diproses',
                 'disaster_status' => 'Terjadi',
                 'prediction_percentage' => 0,
+                'source' => 'BUMN',
             ],
             // Tsunami Warning di Semarang
             [
@@ -74,6 +78,7 @@ class JavaDisasterSeeder extends Seeder
                 'status' => 'Diproses',
                 'disaster_status' => 'Prediksi',
                 'prediction_percentage' => 72,
+                'source' => 'BUMN',
             ],
             // Kehancuran Tamat Bencana
             [
@@ -87,6 +92,7 @@ class JavaDisasterSeeder extends Seeder
                 'status' => 'Selesai',
                 'disaster_status' => 'Selesai',
                 'prediction_percentage' => 0,
+                'source' => 'BUMN',
             ],
             // Prediksi Banjir Rendah
             [
@@ -100,6 +106,7 @@ class JavaDisasterSeeder extends Seeder
                 'status' => 'Diverifikasi',
                 'disaster_status' => 'Prediksi',
                 'prediction_percentage' => 25,
+                'source' => 'BUMN',
             ],
             // Prediksi Tanah Longsor Sedang
             [
@@ -113,6 +120,7 @@ class JavaDisasterSeeder extends Seeder
                 'status' => 'Diproses',
                 'disaster_status' => 'Prediksi',
                 'prediction_percentage' => 45,
+                'source' => 'BUMN',
             ],
             // Prediksi Banjir Median
             [
@@ -126,6 +134,7 @@ class JavaDisasterSeeder extends Seeder
                 'status' => 'Diproses',
                 'disaster_status' => 'Prediksi',
                 'prediction_percentage' => 35,
+                'source' => 'BUMN',
             ],
             // Gempa Kediri
             [
@@ -139,6 +148,7 @@ class JavaDisasterSeeder extends Seeder
                 'status' => 'Diproses',
                 'disaster_status' => 'Terjadi',
                 'prediction_percentage' => 0,
+                'source' => 'BUMN',
             ],
             // Longsor Prediksi Tinggi Puncak
             [
@@ -152,6 +162,7 @@ class JavaDisasterSeeder extends Seeder
                 'status' => 'Diverifikasi',
                 'disaster_status' => 'Prediksi',
                 'prediction_percentage' => 78,
+                'source' => 'BUMN',
             ],
         ];
 

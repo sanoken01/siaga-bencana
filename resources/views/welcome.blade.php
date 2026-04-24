@@ -2419,9 +2419,8 @@
 
                     // Add new markers
                     disasters.forEach(disaster => {
-                        console.log('Adding marker for:', disaster.title, 'Color:', disaster.status);
-                        const color = getMarkerColor(disaster);
-                        console.log('Final color:', color);
+                        console.log('Adding marker for:', disaster.title, 'Color:', disaster.color);
+                        const color = disaster.color;
                         const icon = getMarkerIcon(color);
 
                         const marker = L.marker([disaster.lat, disaster.lng], { icon: icon })
