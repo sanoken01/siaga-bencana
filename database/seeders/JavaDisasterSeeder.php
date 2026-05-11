@@ -10,7 +10,6 @@ class JavaDisasterSeeder extends Seeder
     public function run(): void
     {
         $disasters = [
-            // Gempa Bumi di Jawa Timur (Surabaya)
             [
                 'title' => 'Gempa Bumi Magnitude 5.2 - Surabaya',
                 'disaster_type' => 'Gempa Bumi',

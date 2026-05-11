@@ -859,6 +859,8 @@
         .badge-siaga { background: #ef4444; }
         .badge-waspada { background: #f59e0b; }
         .badge-aman { background: #22c55e; }
+        .badge-danger { background: #b91c1c; }
+        .badge-warning { background: #f97316; }
 
         .btn-detail {
             display: inline-flex;
@@ -972,6 +974,8 @@
             border: 1px solid rgba(19, 120, 194, 0.34);
             overflow: hidden;
             background: #f8f9fa;
+            position: relative;
+            padding: 0;
         }
 
         #interactiveMap {
@@ -979,6 +983,10 @@
             height: 100%;
             min-height: 500px;
             border-radius: 24px;
+        }
+
+        .leaflet-control-attribution {
+            display: none !important;
         }
 
         .disaster-marker-popup {
@@ -1143,6 +1151,16 @@
             justify-content: center;
         }
 
+        .leaflet-control-attribution,
+        .leaflet-attribution-control {
+            display: none !important;
+        }
+
+        .leaflet-control-attribution a,
+        .leaflet-attribution-control a {
+            display: none !important;
+        }
+
         .custom-marker {
             display: flex;
             align-items: center;
@@ -1156,7 +1174,7 @@
 
         .map-legend {
             position: absolute;
-            bottom: 2rem;
+            bottom: 5.2rem;
             right: 1rem;
             background: white;
             padding: 1rem 1.2rem;
@@ -1172,6 +1190,23 @@
             font-weight: 700;
             color: #0e447d;
             font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .map-legend {
+                right: 0.8rem;
+                bottom: 6.8rem;
+                max-width: 210px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .map-legend {
+                right: 0.6rem;
+                left: 0.6rem;
+                bottom: 6.8rem;
+                max-width: calc(100% - 1.2rem);
+            }
         }
 
         .legend-item {
@@ -1465,7 +1500,6 @@
         /* ============================================================
            FLOATING BUTTONS
         ============================================================ */
-        .floating-emergency,
         .back-to-top {
             position: fixed;
             right: 22px;
@@ -1481,25 +1515,22 @@
             cursor: pointer;
             box-shadow: 0 12px 28px rgba(11, 72, 125, 0.28);
             transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast), visibility var(--transition-fast);
-        }
-
-        .floating-emergency {
-            bottom: 88px;
-            background: linear-gradient(135deg, #ff6a8b, #ff8f70);
-            animation: pulseGlow 2.4s ease infinite;
-        }
-
-        .floating-emergency:hover {
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 16px 30px rgba(205, 68, 113, 0.34);
-        }
-
-        .back-to-top {
             bottom: 24px;
             background: linear-gradient(135deg, #35b5ff, #0085ff);
             opacity: 0;
             visibility: hidden;
             transform: translateY(8px);
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 30px rgba(0, 133, 255, 0.34);
         }
 
         .back-to-top.show {
@@ -1683,16 +1714,11 @@
                 width: 100%;
             }
 
-            .floating-emergency,
             .back-to-top {
                 right: 16px;
                 width: 48px;
                 height: 48px;
                 border-radius: 14px;
-            }
-
-            .floating-emergency {
-                bottom: 80px;
             }
         }
     </style>
@@ -1785,7 +1811,7 @@
                 </p>
 
                 <div class="hero-cta">
-                    <a href="{{ route('donasi') }}" class="btn btn-primary">
+                    <a href="{{ auth()->check() ? route('donasi') : route('login') }}" class="btn btn-primary">
                         <i class="fa-solid fa-bolt"></i>
                         Donasi Sekarang
                     </a>
@@ -1881,47 +1907,7 @@
             </div>
 
             <div class="status-list">
-                <article class="status-card">
-                    <div class="status-left">
-                        <div class="status-icon"><i class="fa-solid fa-house-crack"></i></div>
-                        <div class="status-info">
-                            <h3>Gempa Bumi - Jawa Barat</h3>
-                            <p>Magnitudo sedang, pemantauan intensif dan pemeriksaan bangunan vital dilakukan.</p>
-                        </div>
-                    </div>
-                    <div class="status-meta">
-                        <span class="badge badge-siaga"><i class="fa-solid fa-circle"></i> Siaga</span>
-                        <a href="#" class="btn-detail">Detail <i class="fa-solid fa-arrow-right"></i></a>
-                    </div>
-                </article>
-
-                <article class="status-card">
-                    <div class="status-left">
-                        <div class="status-icon"><i class="fa-solid fa-water"></i></div>
-                        <div class="status-info">
-                            <h3>Banjir - Kalimantan Selatan</h3>
-                            <p>Ketinggian air mulai naik di beberapa kecamatan, tim evakuasi sudah disiagakan.</p>
-                        </div>
-                    </div>
-                    <div class="status-meta">
-                        <span class="badge badge-waspada"><i class="fa-solid fa-circle"></i> Waspada</span>
-                        <a href="#" class="btn-detail">Detail <i class="fa-solid fa-arrow-right"></i></a>
-                    </div>
-                </article>
-
-                <article class="status-card">
-                    <div class="status-left">
-                        <div class="status-icon"><i class="fa-solid fa-mountain-city"></i></div>
-                        <div class="status-info">
-                            <h3>Gunung Meletus - Nusa Tenggara</h3>
-                            <p>Aktivitas vulkanik stabil dengan radius aman diperluas berdasarkan laporan terbaru.</p>
-                        </div>
-                    </div>
-                    <div class="status-meta">
-                        <span class="badge badge-aman"><i class="fa-solid fa-circle"></i> Aman</span>
-                        <a href="#" class="btn-detail">Detail <i class="fa-solid fa-arrow-right"></i></a>
-                    </div>
-                </article>
+                <!-- Status cards will be rendered dynamically via JavaScript -->
             </div>
         </div>
     </section>
@@ -2119,7 +2105,7 @@
                 Setiap dukungan Anda membantu tim relawan menyalurkan logistik, layanan medis,
                 dan perlindungan bagi warga terdampak di berbagai wilayah Indonesia.
             </p>
-            <a href="{{ route('donasi') }}" class="btn-donate">
+            <a href="{{ auth()->check() ? route('donasi') : route('login') }}" class="btn-donate">
                 <i class="fa-solid fa-heart"></i>
                 Donasi Sekarang
             </a>
@@ -2176,13 +2162,6 @@
     </footer>
 
     <!-- ============================================================
-         FLOATING EMERGENCY BUTTON
-    ============================================================ -->
-    <a href="#" class="floating-emergency" aria-label="Emergency Call">
-        <i class="fa-solid fa-phone"></i>
-    </a>
-
-    <!-- ============================================================
          BACK TO TOP BUTTON
     ============================================================ -->
     <button class="back-to-top" id="backToTop" aria-label="Back to Top">
@@ -2206,7 +2185,9 @@
             if (!map) {
                 console.log('Initializing map...');
                 // Center pada Jawa (-7.0726, 110.3927)
-                map = L.map('interactiveMap').setView([-7.0726, 110.3927], 8);
+                map = L.map('interactiveMap', {
+                    attributionControl: false
+                }).setView([-7.0726, 110.3927], 8);
 
                 // Satellite imagery dari ESRI
                 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -2237,6 +2218,8 @@
                 return '#9ddf59'; // Hijau muda untuk prediksi rendah
             }
         }
+
+        const donateUrl = "{{ auth()->check() ? route('donasi') : route('login') }}";
 
         function getPredictionRisk(disaster) {
             const baseRisk = {
@@ -2364,7 +2347,7 @@
                 `;
             }
 
-            const donateButton = disaster.status === 'Selesai' ? `<a class="donate-button" href="{{ route('donasi') }}" target="_blank" rel="noopener">Donasi Sekarang</a>` : '';
+            const donateButton = disaster.status === 'Selesai' ? `<a class="donate-button" href="${donateUrl}" target="_blank" rel="noopener">Donasi Sekarang</a>` : '';
 
             return `
                 <div class="disaster-marker-popup">
@@ -2383,6 +2366,78 @@
             `;
         }
 
+        function renderStatusCards(disasters) {
+            const statusList = document.querySelector('.status-list');
+            if (!statusList) return;
+
+            // Clear existing cards
+            statusList.innerHTML = '';
+
+            // Take only the first 3 most recent disasters for status cards
+            const recentDisasters = disasters.slice(0, 3);
+
+            recentDisasters.forEach(disaster => {
+                const card = document.createElement('article');
+                card.className = 'status-card';
+
+                // Get icon based on disaster type
+                let iconClass = 'fa-solid fa-triangle-exclamation'; // default
+                if (disaster.type.toLowerCase().includes('gempa')) {
+                    iconClass = 'fa-solid fa-house-crack';
+                } else if (disaster.type.toLowerCase().includes('banjir')) {
+                    iconClass = 'fa-solid fa-water';
+                } else if (disaster.type.toLowerCase().includes('longsor')) {
+                    iconClass = 'fa-solid fa-mountain-city';
+                } else if (disaster.type.toLowerCase().includes('tsunami')) {
+                    iconClass = 'fa-solid fa-wave-square';
+                }
+
+                // Get badge class and text based on status
+                let badgeClass = 'badge-siaga';
+                let badgeText = 'Siaga';
+                if (disaster.status === 'Selesai') {
+                    badgeClass = 'badge-aman';
+                    badgeText = 'Selesai';
+                } else if (disaster.status === 'Prediksi') {
+                    if (disaster.prediction >= 75) {
+                        badgeClass = 'badge-danger';
+                        badgeText = 'Prediksi Sangat Tinggi';
+                    } else if (disaster.prediction >= 50) {
+                        badgeClass = 'badge-waspada';
+                        badgeText = 'Prediksi Tinggi';
+                    } else if (disaster.prediction >= 30) {
+                        badgeClass = 'badge-warning';
+                        badgeText = 'Prediksi Sedang';
+                    } else {
+                        badgeClass = 'badge-aman';
+                        badgeText = 'Prediksi Rendah';
+                    }
+                }
+
+                const parsedDate = new Date(disaster.date.replace(' ', 'T'));
+                const formattedDate = isNaN(parsedDate) ? disaster.date : parsedDate.toLocaleString('id-ID', {
+                    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                card.innerHTML = `
+                    <div class="status-left">
+                        <div class="status-icon"><i class="${iconClass}"></i></div>
+                        <div class="status-info">
+                            <h3>${disaster.title}</h3>
+                            <p>${disaster.location} · ${formattedDate}</p>
+                            <p>${disaster.description}</p>
+                        </div>
+                    </div>
+                    <div class="status-meta">
+                        <span class="badge ${badgeClass}"><i class="fa-solid fa-circle"></i> ${badgeText}</span>
+                        <a href="#" class="btn-detail">Detail <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                `;
+
+                statusList.appendChild(card);
+            });
+        }
+
         function loadDisasterData() {
             fetch('/api/disaster-data')
                 .then(response => {
@@ -2393,6 +2448,9 @@
                 })
                 .then(disasters => {
                     console.log('Disasters loaded:', disasters);
+                    
+                    // Render status cards
+                    renderStatusCards(disasters);
                     
                     // Only proceed if map is initialized
                     if (!map || typeof map.removeLayer !== 'function') {
@@ -2439,8 +2497,8 @@
             // Load immediately on page load
             loadDisasterData();
 
-            // Update setiap 5 detik untuk real-time data
-            updateInterval = setInterval(loadDisasterData, 5000);
+            // Update setiap 10 detik untuk real-time data
+            updateInterval = setInterval(loadDisasterData, 10000);
         }
 
         function stopRealTimeUpdates() {

@@ -526,6 +526,47 @@
                             <p class="error-text">@error('location') {{ $message }} @enderror</p>
                         </div>
 
+                        <div class="field-group two-col">
+                            <div class="field-group">
+                                <label for="latitude" class="field-label">
+                                    <i class="fa-solid fa-arrow-up-right-dots"></i>
+                                    Latitude
+                                </label>
+                                <div class="input-wrap">
+                                    <input
+                                        type="number"
+                                        step="any"
+                                        id="latitude"
+                                        name="latitude"
+                                        class="input"
+                                        placeholder="Contoh: -6.9175"
+                                        value="{{ old('latitude') }}"
+                                    >
+                                    <i class="fa-solid fa-location-dot input-icon"></i>
+                                </div>
+                                <p class="error-text">@error('latitude') {{ $message }} @enderror</p>
+                            </div>
+                            <div class="field-group">
+                                <label for="longitude" class="field-label">
+                                    <i class="fa-solid fa-arrow-down-left-dots"></i>
+                                    Longitude
+                                </label>
+                                <div class="input-wrap">
+                                    <input
+                                        type="number"
+                                        step="any"
+                                        id="longitude"
+                                        name="longitude"
+                                        class="input"
+                                        placeholder="Contoh: 107.6191"
+                                        value="{{ old('longitude') }}"
+                                    >
+                                    <i class="fa-solid fa-location-dot input-icon"></i>
+                                </div>
+                                <p class="error-text">@error('longitude') {{ $message }} @enderror</p>
+                            </div>
+                        </div>
+
                         <div class="field-group">
                             <label for="description" class="field-label">
                                 <i class="fa-regular fa-note-sticky"></i>

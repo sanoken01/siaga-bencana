@@ -39,10 +39,10 @@ class FetchDisasterData extends Command
         $this->info('✅ All disaster data fetched successfully from:');
         $this->line('  • BMKG (autogempa, gempadirasakan, gempadirect, gempaterkini)');
         $this->line('  • PetaBencana.id (flood reports)');
-        $this->line('  • USGS (global earthquakes, filtered for Indonesia)');
+        $this->line('  • USGS (global earthquakes, filtered for Indonesia only)');
         $this->line('  • GDACS (global disaster alerts)');
         $this->line('  • Panto Air (Jakarta flood monitoring)');
-        $this->line('  • Historical Data (past disasters)');
+        $this->line('ℹ️  Note: Only real BUMN and verified API data is stored (no dummy data)');
 
         $this->info("📊 Database status:");
         $this->line("  • Total records: {$afterCount}");

@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
-        // Seed disaster data - commented out to use API data instead
-        // $this->call(JavaDisasterSeeder::class);
+        // Only use live API data via disaster:fetch-data command
+        // No seeded dummy data
     }
 }

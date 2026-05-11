@@ -584,7 +584,7 @@
             <div class="section-head">
                 <div>
                     <h2 class="section-title">Informasi Bencana Aktif</h2>
-                    <p class="section-subtitle">Pilih bencana yang ingin Anda bantu. Data di bawah ini adalah dummy awal yang bisa disambungkan ke data laporan bencana nanti.</p>
+                    <p class="section-subtitle">Pilih bencana yang ingin Anda bantu. Data di bawah ini diambil dari laporan BUMN dan status real-time yang tersedia.</p>
                 </div>
             </div>
 

@@ -9,7 +9,7 @@ class ReportController extends Controller
 {
     public function index()
     {
-        $reports = Report::where('source', 'BUMN')->latest()->get();
+        $reports = Report::latest()->get();
         return view('reports.index', compact('reports'));
     }
 
@@ -26,11 +26,30 @@ class ReportController extends Controller
             'location' => 'required|string|max:255',
             'report_date' => 'required|date',
             'description' => 'required|string',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
             'status' => 'nullable|in:Diproses,Diverifikasi,Selesai',
             'disaster_status' => 'nullable|in:Terjadi,Prediksi,Selesai',
         ]);
 
-        Report::create(array_merge($request->all(), ['disaster_status' => $request->input('disaster_status', 'Prediksi')]));
+        Report::create(array_merge(
+            $request->only([
+                'title',
+                'disaster_type',
+                'location',
+                'report_date',
+                'description',
+                'latitude',
+                'longitude',
+                'status',
+                'disaster_status',
+            ]),
+            [
+                'disaster_status' => $request->input('disaster_status', 'Prediksi'),
+                'source' => 'Laporan Cepat',
+                'prediction_percentage' => 0,
+            ]
+        ));
 
         return redirect()->route('reports.index')
                          ->with('success', 'Laporan berhasil ditambahkan!');
@@ -49,11 +68,26 @@ class ReportController extends Controller
             'location' => 'required|string|max:255',
             'report_date' => 'required|date',
             'description' => 'required|string',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
             'status' => 'nullable|in:Diproses,Diverifikasi,Selesai',
             'disaster_status' => 'nullable|in:Terjadi,Prediksi,Selesai',
         ]);
 
-        $report->update(array_merge($request->all(), ['disaster_status' => $request->input('disaster_status', $report->disaster_status ?? 'Prediksi')]));
+        $report->update(array_merge(
+            $request->only([
+                'title',
+                'disaster_type',
+                'location',
+                'report_date',
+                'description',
+                'latitude',
+                'longitude',
+                'status',
+                'disaster_status',
+            ]),
+            ['disaster_status' => $request->input('disaster_status', $report->disaster_status ?? 'Prediksi')]
+        ));
 
         return redirect()->route('reports.index')
                          ->with('success', 'Laporan berhasil diperbarui!');
@@ -72,7 +106,6 @@ class ReportController extends Controller
         $disasters = Report::whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->where('disaster_type', '!=', '')
-            ->where('source', 'BUMN')
             ->latest('report_date')
             ->get()
             ->map(function ($disaster) {
@@ -101,10 +134,14 @@ class ReportController extends Controller
         } elseif ($disaster->disaster_status === 'Selesai') {
             return '#FFFFFF'; // Putih untuk bencana selesai
         } else { // Prediksi
-            if ($disaster->prediction_percentage >= 50) {
-                return '#FFA500'; // Orange untuk prediksi >= 50%
+            if ($disaster->prediction_percentage >= 75) {
+                return '#d13612'; // Merah gelap untuk prediksi sangat tinggi
+            } elseif ($disaster->prediction_percentage >= 50) {
+                return '#FFA500'; // Orange untuk prediksi tinggi
+            } elseif ($disaster->prediction_percentage >= 30) {
+                return '#FFD700'; // Kuning untuk prediksi sedang
             } else {
-                return '#FFFF00'; // Kuning untuk prediksi < 50%
+                return '#9ddf59'; // Hijau muda untuk prediksi rendah
             }
         }
     }

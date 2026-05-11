@@ -211,9 +211,18 @@ class DisasterDataService
                 $properties = $feature['properties'];
                 $geometry = $feature['geometry'];
 
+                if (!isset($geometry['coordinates'][1], $geometry['coordinates'][0])) {
+                    continue;
+                }
+
                 // Filter for Indonesia region (bounding box: -11 to 6 lat, 95 to 141 lng)
                 $lat = $geometry['coordinates'][1];
                 $lng = $geometry['coordinates'][0];
+
+                $place = strtolower($properties['place'] ?? '');
+                if (strpos($place, 'philipp') !== false || strpos($place, 'taiwan') !== false || strpos($place, 'japan') !== false) {
+                    continue;
+                }
 
                 if ($lat >= -11 && $lat <= 6 && $lng >= 95 && $lng <= 141) {
                     // Create unique key based on USGS event ID
@@ -284,34 +293,60 @@ class DisasterDataService
 
     private function savePetaBencanaFloodData($data)
     {
+        $reports = [];
+
         if (isset($data['result']['objects']['output']['geometries'])) {
-            foreach ($data['result']['objects']['output']['geometries'] as $report) {
-                if (isset($report['properties'])) {
-                    $properties = $report['properties'];
-                    $coordinates = $report['coordinates'];
+            $reports = $data['result']['objects']['output']['geometries'];
+        } elseif (isset($data['result']['objects']['output']['features'])) {
+            $reports = $data['result']['objects']['output']['features'];
+        } elseif (isset($data['features'])) {
+            $reports = $data['features'];
+        }
 
-                    // Create unique key based on coordinates and timestamp
-                    $timestamp = isset($properties['created_at']) ? strtotime($properties['created_at']) : time();
-                    $uniqueKey = 'petabencana_' . $coordinates[1] . '_' . $coordinates[0] . '_' . $timestamp;
-
-                    Report::updateOrCreate(
-                        ['unique_key' => $uniqueKey],
-                        [
-                            'title' => 'Banjir - ' . ($properties['area_name'] ?? 'Lokasi Tidak Diketahui'),
-                            'disaster_type' => 'Banjir',
-                            'location' => $properties['area_name'] ?? 'Lokasi Tidak Diketahui',
-                            'latitude' => (float) $coordinates[1],
-                            'longitude' => (float) $coordinates[0],
-                            'report_date' => now(),
-                            'description' => 'Laporan banjir dari masyarakat. ' . ($properties['text'] ?? ''),
-                            'status' => 'Diproses',
-                            'disaster_status' => 'Terjadi',
-                            'prediction_percentage' => 0,
-                            'source' => 'PetaBencana',
-                        ]
-                    );
-                }
+        foreach ($reports as $report) {
+            if (!isset($report['properties'])) {
+                continue;
             }
+
+            $properties = $report['properties'];
+            $coordinates = $report['coordinates'] ?? ($report['geometry']['coordinates'] ?? null);
+            if (!is_array($coordinates) || count($coordinates) < 2) {
+                continue;
+            }
+
+            if (isset($properties['id'])) {
+                $uniqueKey = 'petabencana_' . $properties['id'];
+            } else {
+                $uniqueKey = 'petabencana_' . md5(
+                    ($properties['area_name'] ?? '') . '|' .
+                    ($properties['text'] ?? '') . '|' .
+                    ($coordinates[1] ?? '') . '|' .
+                    ($coordinates[0] ?? '') . '|' .
+                    ($properties['created_at'] ?? '')
+                );
+            }
+
+            $reportDate = now();
+            if (!empty($properties['created_at']) && strtotime($properties['created_at']) !== false) {
+                $reportDate = date('Y-m-d H:i:s', strtotime($properties['created_at']));
+            }
+
+            Report::updateOrCreate(
+                ['unique_key' => $uniqueKey],
+                [
+                    'title' => 'Banjir - ' . ($properties['area_name'] ?? 'Lokasi Tidak Diketahui'),
+                    'disaster_type' => 'Banjir',
+                    'location' => $properties['area_name'] ?? 'Lokasi Tidak Diketahui',
+                    'latitude' => (float) $coordinates[1],
+                    'longitude' => (float) $coordinates[0],
+                    'report_date' => $reportDate,
+                    'description' => 'Laporan banjir dari masyarakat. ' . ($properties['text'] ?? ''),
+                    'status' => 'Diproses',
+                    'disaster_status' => 'Terjadi',
+                    'prediction_percentage' => 0,
+                    'source' => 'PetaBencana',
+                ]
+            );
         }
     }
 
@@ -369,97 +404,7 @@ class DisasterDataService
         self::info('Fetching data from Panto Air...');
         $this->fetchPantoAirData();
 
-        self::info('Adding historical disaster data...');
-        $this->addHistoricalDisasterData();
-
         self::info('All disaster data fetched successfully!');
-    }
-
-    public function addHistoricalDisasterData()
-    {
-        $this->info('Adding historical disaster data...');
-
-        $historicalDisasters = [
-            [
-                'unique_key' => 'historical_gempa_palangkaraya_2024',
-                'title' => 'Gempa Bumi 6.2 - Palangkaraya (SELESAI)',
-                'disaster_type' => 'Gempa Bumi',
-                'location' => 'Palangkaraya, Kalimantan Tengah',
-                'latitude' => -2.2167,
-                'longitude' => 113.9167,
-                'report_date' => '2024-11-15',
-                'description' => 'Gempa bumi berkekuatan 6.2 SR mengguncang Palangkaraya pada November 2024. Kerusakan infrastruktur minimal, tidak ada korban jiwa.',
-                'status' => 'Selesai',
-                'disaster_status' => 'Selesai',
-                'prediction_percentage' => 0,
-                'source' => 'Historical',
-            ],
-            [
-                'unique_key' => 'historical_banjir_jakarta_2024',
-                'title' => 'Banjir Jakarta Pusat (SELESAI)',
-                'disaster_type' => 'Banjir',
-                'location' => 'Jakarta Pusat, DKI Jakarta',
-                'latitude' => -6.1751,
-                'longitude' => 106.8249,
-                'report_date' => '2024-12-20',
-                'description' => 'Banjir melanda Jakarta Pusat akibat hujan ekstrem Desember 2024. Evakuasi penduduk berhasil dilakukan, air surut dalam 3 hari.',
-                'status' => 'Selesai',
-                'disaster_status' => 'Selesai',
-                'prediction_percentage' => 0,
-                'source' => 'Historical',
-            ],
-            [
-                'unique_key' => 'historical_tanahlongsor_cirebon_2024',
-                'title' => 'Tanah Longsor Cirebon (SELESAI)',
-                'disaster_type' => 'Tanah Longsor',
-                'location' => 'Cirebon, Jawa Barat',
-                'latitude' => -6.7250,
-                'longitude' => 108.5523,
-                'report_date' => '2024-10-08',
-                'description' => 'Tanah longsor di perbukitan Cirebon Oktober 2024. 5 rumah terdampak, evakuasi berhasil, rehabilitasi selesai.',
-                'status' => 'Selesai',
-                'disaster_status' => 'Selesai',
-                'prediction_percentage' => 0,
-                'source' => 'Historical',
-            ],
-            [
-                'unique_key' => 'historical_kebakaran_hutan_riau_2024',
-                'title' => 'Kebakaran Hutan Riau (SELESAI)',
-                'disaster_type' => 'Kebakaran Hutan',
-                'location' => 'Riau, Sumatera',
-                'latitude' => 0.5333,
-                'longitude' => 101.4500,
-                'report_date' => '2024-09-15',
-                'description' => 'Kebakaran hutan di Riau September 2024. 10.000 hektar terbakar, berhasil dipadamkan dalam 2 minggu.',
-                'status' => 'Selesai',
-                'disaster_status' => 'Selesai',
-                'prediction_percentage' => 0,
-                'source' => 'Historical',
-            ],
-            [
-                'unique_key' => 'historical_gunungberapi_merapi_2024',
-                'title' => 'Erupsi Gunung Merapi (SELESAI)',
-                'disaster_type' => 'Gunung Berapi',
-                'location' => 'Gunung Merapi, DIY',
-                'latitude' => -7.5400,
-                'longitude' => 110.4467,
-                'report_date' => '2024-08-22',
-                'description' => 'Erupsi Gunung Merapi Agustus 2024. Abu vulkanik menyebar hingga 15 km, tidak ada korban jiwa.',
-                'status' => 'Selesai',
-                'disaster_status' => 'Selesai',
-                'prediction_percentage' => 0,
-                'source' => 'Historical',
-            ],
-        ];
-
-        foreach ($historicalDisasters as $disaster) {
-            Report::updateOrCreate(
-                ['unique_key' => $disaster['unique_key']],
-                $disaster
-            );
-        }
-
-        self::info('Historical disaster data added successfully!');
     }
 
     private static function info($message)

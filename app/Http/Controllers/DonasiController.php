@@ -3,57 +3,39 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Report;
 
 class DonasiController extends Controller
 {
     public function index()
     {
-        $activeDisasters = [
-            [
-                'title' => 'Banjir di Jawa Timur',
-                'location' => 'Kab. Pasuruan, Jawa Timur',
-                'date' => '8 April 2026',
-                'target' => 250000000,
-                'collected' => 168500000,
-                'donors' => 1240,
-                'tag' => 'Aktif',
-                'icon' => 'fa-water',
-            ],
-            [
-                'title' => 'Gempa di Sulawesi Tengah',
-                'location' => 'Palu, Sulawesi Tengah',
-                'date' => '6 April 2026',
-                'target' => 300000000,
-                'collected' => 197300000,
-                'donors' => 1582,
-                'tag' => 'Darurat',
-                'icon' => 'fa-house-crack',
-            ],
-            [
-                'title' => 'Tanah Longsor di Jawa Barat',
-                'location' => 'Garut, Jawa Barat',
-                'date' => '4 April 2026',
-                'target' => 180000000,
-                'collected' => 92500000,
-                'donors' => 860,
-                'tag' => 'Prioritas',
-                'icon' => 'fa-mountain-sun',
-            ],
-        ];
+        $reports = Report::where('source', 'BUMN')
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->where('disaster_type', '!=', '')
+            ->where('disaster_status', 'Terjadi')
+            ->latest('report_date')
+            ->get();
 
-        foreach ($activeDisasters as &$disaster) {
-            $disaster['progress'] = $disaster['target'] > 0
-                ? min(100, (int) round(($disaster['collected'] / $disaster['target']) * 100))
-                : 0;
-        }
-        unset($disaster);
+        $activeDisasters = $reports->map(function (Report $report) {
+            $target = $report->goal_amount ?? 0;
+            $collected = $report->getTotalDonations();
+            $donorCount = $report->donations()->count();
 
-        $donationHistory = [
-            ['name' => 'Ayu Lestari', 'amount' => 100000, 'date' => '8 April 2026'],
-            ['name' => 'Budi Santoso', 'amount' => 50000, 'date' => '8 April 2026'],
-            ['name' => 'Siti Rahma', 'amount' => 250000, 'date' => '7 April 2026'],
-            ['name' => 'Dimas Pratama', 'amount' => 75000, 'date' => '7 April 2026'],
-        ];
+            return [
+                'title' => $report->title,
+                'location' => $report->location,
+                'date' => optional($report->report_date)->format('j F Y') ?? now()->format('j F Y'),
+                'target' => $target,
+                'collected' => $collected,
+                'donors' => $donorCount,
+                'tag' => $report->disaster_status === 'Terjadi' ? 'Aktif' : 'Prioritas',
+                'icon' => $this->getIconForDisasterType($report->disaster_type),
+                'progress' => $report->getDonationPercentage(),
+            ];
+        })->toArray();
+
+        $donationHistory = [];
 
         $totalDonations = array_sum(array_column($activeDisasters, 'collected'));
         $totalDonors = array_sum(array_column($activeDisasters, 'donors'));
@@ -66,6 +48,33 @@ class DonasiController extends Controller
             'totalDonors',
             'disastersHelped'
         ));
+    }
+
+    private function getIconForDisasterType($type)
+    {
+        $type = strtolower($type);
+
+        if (str_contains($type, 'banjir')) {
+            return 'fa-water';
+        }
+
+        if (str_contains($type, 'gempa')) {
+            return 'fa-house-crack';
+        }
+
+        if (str_contains($type, 'longsor') || str_contains($type, 'tanah longsor')) {
+            return 'fa-mountain-sun';
+        }
+
+        if (str_contains($type, 'gunung') || str_contains($type, 'volcano') || str_contains($type, 'vulkan')) {
+            return 'fa-volcano';
+        }
+
+        if (str_contains($type, 'angin') || str_contains($type, 'badai') || str_contains($type, 'puting')) {
+            return 'fa-wind';
+        }
+
+        return 'fa-triangle-exclamation';
     }
 
     public function store(Request $request)

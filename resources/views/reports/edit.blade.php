@@ -359,6 +359,34 @@
                         </div>
 
                         <div class="field">
+                            <label for="latitude" class="field-label">🧭 Latitude</label>
+                            <input
+                                type="number"
+                                step="any"
+                                id="latitude"
+                                name="latitude"
+                                class="input"
+                                value="{{ old('latitude', $report->latitude) }}"
+                                placeholder="Contoh: -7.250445"
+                            >
+                            <p class="error-text">@error('latitude') {{ $message }} @enderror</p>
+                        </div>
+
+                        <div class="field">
+                            <label for="longitude" class="field-label">🌐 Longitude</label>
+                            <input
+                                type="number"
+                                step="any"
+                                id="longitude"
+                                name="longitude"
+                                class="input"
+                                value="{{ old('longitude', $report->longitude) }}"
+                                placeholder="Contoh: 112.768845"
+                            >
+                            <p class="error-text">@error('longitude') {{ $message }} @enderror</p>
+                        </div>
+
+                        <div class="field">
                             <label for="report_date" class="field-label">📅 Report Date</label>
                             <input
                                 type="date"

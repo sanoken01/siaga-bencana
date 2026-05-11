@@ -12,10 +12,10 @@ Route::get('/', function () {
 });
 
 Route::get('/api/disaster-data', [ReportController::class, 'getDisasterData']);
-Route::get('/donasi', [DonasiController::class, 'index'])->name('donasi');
-Route::post('/donasi', [DonasiController::class, 'store'])->name('donasi.store');
-
 Route::middleware('auth')->group(function () {
+    Route::get('/donasi', [DonasiController::class, 'index'])->name('donasi');
+    Route::post('/donasi', [DonasiController::class, 'store'])->name('donasi.store');
+
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
@@ -31,10 +31,11 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::resource('reports', ReportController::class);
-Route::get('reports/{report}/donate', [DonationController::class, 'create'])->name('reports.donate');
-Route::post('reports/{report}/donate', [DonationController::class, 'store'])->name('reports.donate.store');
 
 Route::middleware('auth')->group(function () {
+    Route::get('reports/{report}/donate', [DonationController::class, 'create'])->name('reports.donate');
+    Route::post('reports/{report}/donate', [DonationController::class, 'store'])->name('reports.donate.store');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
