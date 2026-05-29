@@ -4,9 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Report;
+use App\Models\Donation;
 
 class DonasiController extends Controller
 {
+    public function create(Report $report)
+    {
+        return redirect()->route('donasi');
+    }
+
     public function index()
     {
         $reports = Report::where('source', 'BUMN')
@@ -92,6 +98,16 @@ class DonasiController extends Controller
             'email.required' => 'Email wajib diisi.',
             'amount.required' => 'Nominal donasi wajib diisi.',
             'payment_method.required' => 'Metode pembayaran wajib dipilih.',
+        ]);
+
+        // Persist donation to database
+        Donation::create([
+            'report_id' => $request->input('report_id'),
+            'donor_name' => $validated['donor_name'],
+            'email' => $validated['email'],
+            'amount' => (int) $validated['amount'],
+            'payment_method' => $validated['payment_method'],
+            'message' => $request->input('message'),
         ]);
 
         return redirect()

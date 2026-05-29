@@ -209,7 +209,7 @@
             color: #fff;
             font-weight: 600;
             font-size: 0.88rem;
-            background: linear-gradient(90deg, #3db4ff, #008eff);
+            background: linear-gradient(90deg, var(--blue-start), var(--blue-end));
             box-shadow: 0 8px 20px rgba(0, 142, 255, 0.3);
             transition: transform var(--transition-fast), box-shadow var(--transition-fast);
         }
@@ -637,10 +637,7 @@
         .stats {
             position: relative;
             overflow: hidden;
-            background:
-                radial-gradient(circle at 12% 12%, rgba(255, 216, 240, 0.34), transparent 48%),
-                radial-gradient(circle at 88% 22%, rgba(182, 243, 255, 0.34), transparent 46%),
-                linear-gradient(130deg, #edf8ff 0%, #f8fdff 100%);
+            background: #ffffff;
         }
 
         .stats-grid {
@@ -884,10 +881,7 @@
            PETA INTERAKTIF (MAIN FEATURE)
         ============================================================ */
         .map-section {
-            background:
-                radial-gradient(circle at 8% 20%, rgba(182, 243, 255, 0.46), transparent 36%),
-                radial-gradient(circle at 88% 14%, rgba(255, 216, 240, 0.34), transparent 34%),
-                linear-gradient(130deg, #edf8ff 0%, #f8fcff 100%);
+            background: #ffffff;
             overflow: hidden;
         }
 
@@ -932,7 +926,7 @@
             inset: 0;
             border-radius: inherit;
             padding: 1.5px;
-            background: linear-gradient(140deg, rgba(79, 172, 254, 0.95), rgba(0, 198, 255, 0.85), rgba(255, 216, 240, 0.75));
+            background: rgba(79, 172, 254, 0.35);
             -webkit-mask:
                 linear-gradient(#fff 0 0) content-box,
                 linear-gradient(#fff 0 0);

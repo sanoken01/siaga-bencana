@@ -46,5 +46,11 @@ Route::middleware('api')->group(function () {
 
         // Get statistics overview
         Route::get('/statistics/overview', [ReportApiController::class, 'getStatistics'])->name('api.statistics');
+
+        // Donation API
+        Route::post('/donations', [\App\Http\Controllers\Api\DonationApiController::class, 'store'])->name('api.donations.store');
+        Route::get('/donations/history', [\App\Http\Controllers\Api\DonationApiController::class, 'history'])->name('api.donations.history');
+        Route::get('/donations/stats', [\App\Http\Controllers\Api\DonationApiController::class, 'stats'])->name('api.donations.stats');
+        Route::get('/donations/charts', [\App\Http\Controllers\Api\DonationApiController::class, 'charts'])->name('api.donations.charts');
     });
 });

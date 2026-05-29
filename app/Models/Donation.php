@@ -10,7 +10,9 @@ class Donation extends Model
     protected $fillable = [
         'report_id',
         'donor_name',
+        'email',
         'amount',
+        'payment_method',
         'message',
     ];
 
