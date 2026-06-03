@@ -7,9 +7,17 @@ use App\Models\Report;
 
 class ReportController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth')->except('getDisasterData');
+    }
+
     public function index()
     {
-        $reports = Report::latest()->get();
+        $reports = Report::where('user_id', auth()->id())
+            ->latest()
+            ->get();
+
         return view('reports.index', compact('reports'));
     }
 
@@ -45,6 +53,7 @@ class ReportController extends Controller
                 'disaster_status',
             ]),
             [
+                'user_id' => auth()->id(),
                 'disaster_status' => $request->input('disaster_status', 'Prediksi'),
                 'source' => 'Laporan Cepat',
                 'prediction_percentage' => 0,
@@ -57,11 +66,18 @@ class ReportController extends Controller
 
     public function edit(Report $report)
     {
+        if ($report->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         return view('reports.edit', compact('report'));
     }
 
     public function update(Request $request, Report $report)
     {
+        if ($report->user_id !== auth()->id()) {
+            abort(403);
+        }
         $request->validate([
             'title' => 'required|string|max:255',
             'disaster_type' => 'required|string|max:255',
@@ -95,6 +111,10 @@ class ReportController extends Controller
 
     public function destroy(Report $report)
     {
+        if ($report->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $report->delete();
 
         return redirect()->route('reports.index')

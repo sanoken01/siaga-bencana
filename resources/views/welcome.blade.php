@@ -977,6 +977,8 @@
             height: 100%;
             min-height: 500px;
             border-radius: 24px;
+            position: relative;
+            z-index: 100;
         }
 
         .leaflet-control-attribution {
@@ -1175,8 +1177,49 @@
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             font-size: 0.85rem;
-            z-index: 1000;
+            z-index: 2200;
             max-width: 220px;
+            pointer-events: auto;
+            touch-action: manipulation;
+        }
+
+        /* hidden state for legend */
+        .map-legend.hidden {
+            display: none !important;
+        }
+
+        /* legend close button (small x) */
+        .legend-close {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: inline-grid;
+            place-items: center;
+            background: transparent;
+            border: 0;
+            color: #2b5a88;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        /* floating toggle button for small screens */
+        .legend-toggle-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 2300;
+            background: rgba(255,255,255,0.95);
+            border: 1px solid rgba(16,116,185,0.08);
+            padding: 0.45rem 0.6rem;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(8,63,122,0.08);
+            display: none; /* shown only on small screens */
+            font-weight: 700;
+            pointer-events: auto;
+            touch-action: manipulation;
         }
 
         .map-legend h4 {
@@ -1200,6 +1243,15 @@
                 left: 0.6rem;
                 bottom: 6.8rem;
                 max-width: calc(100% - 1.2rem);
+            }
+            /* hide legend by default on very small screens to improve map visibility */
+            .map-legend {
+                display: none;
+            }
+            .legend-toggle-btn {
+                display: inline-flex;
+                right: 0.8rem;
+                top: 0.8rem;
             }
         }
 
@@ -1855,10 +1907,12 @@
                     <span class="map-badge"><i class="fa-solid fa-layer-group"></i> Integrasi Marker Dinamis</span>
                 </div>
 
-                <div class="map-preview" id="mapContainer">
+                    <div class="map-preview" id="mapContainer">
                     <div id="interactiveMap"></div>
-                    <div class="map-legend">
-                        <h4>Legenda Status</h4>
+                    <button id="legendToggleBtn" class="legend-toggle-btn" aria-controls="mapLegend" aria-expanded="false">Bencana</button>
+                    <div class="map-legend" id="mapLegend" role="region" aria-label="Bencana Status">
+                        <button type="button" class="legend-close" aria-label="Tutup Bencana">×</button>
+                        <h4>Bencana Status</h4>
                         <div class="legend-item">
                             <div class="legend-color" style="background-color: #FF0000;"></div>
                             <span>Bencana Terjadi</span>
@@ -1898,6 +1952,12 @@
                 <span class="tag">Update Terkini</span>
                 <h2>Status Bencana Saat Ini</h2>
                 <p>Informasi terbaru dari beberapa wilayah prioritas untuk memudahkan kesiapsiagaan komunitas.</p>
+                <div style="margin-top:8px; font-size:0.9rem; color:#4f6684; display:flex; gap:12px; align-items:center;">
+                    <div id="lastUpdate">Terakhir diperbarui: -</div>
+                    <div id="lastCount">Jumlah data: -</div>
+                    <div id="lastStatus" style="color:#4f6684">Status: -</div>
+                    <button id="manualRefreshBtn" class="btn-secondary" style="padding:6px 10px; font-size:0.85rem;">Refresh sekarang</button>
+                </div>
             </div>
 
             <div class="status-list">
@@ -2173,6 +2233,7 @@
         // Map Initialization and Disaster Real-time Data
         let map = null;
         let markers = {};
+        let markerGroup = null;
         let updateInterval = null;
 
         function initializeMap() {
@@ -2189,6 +2250,8 @@
                     maxZoom: 19,
                     minZoom: 6
                 }).addTo(map);
+
+                markerGroup = L.layerGroup().addTo(map);
                 
                 console.log('Map initialized successfully');
             }
@@ -2367,8 +2430,9 @@
             // Clear existing cards
             statusList.innerHTML = '';
 
-            // Take only the first 3 most recent disasters for status cards
-            const recentDisasters = disasters.slice(0, 3);
+            // Sort data by newest date first, then take the top 3
+            const sortedDisasters = disasters.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+            const recentDisasters = sortedDisasters.slice(0, 3);
 
             recentDisasters.forEach(disaster => {
                 const card = document.createElement('article');
@@ -2433,7 +2497,9 @@
         }
 
         function loadDisasterData() {
-            fetch('/api/disaster-data')
+            const url = '/api/disaster-data?timestamp=' + Date.now();
+            console.log('Requesting', url, 'at', new Date().toISOString());
+            fetch(url, { cache: 'no-store', credentials: 'same-origin' })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
@@ -2441,28 +2507,45 @@
                     return response.json();
                 })
                 .then(disasters => {
-                    console.log('Disasters loaded:', disasters);
-                    
+                    const now = new Date();
+                    console.log('Disasters loaded:', disasters, 'at', now.toISOString());
+
                     // Render status cards
                     renderStatusCards(disasters);
+
+                    // Update last-updated UI
+                    try {
+                        const lastEl = document.getElementById('lastUpdate');
+                        if (lastEl) {
+                            lastEl.textContent = 'Terakhir diperbarui: ' + now.toLocaleString('id-ID');
+                        }
+                    } catch (e) {
+                        console.warn('Failed to update lastUpdate element', e);
+                    }
                     
+                    // Update last count/status UI
+                    try {
+                        const countEl = document.getElementById('lastCount');
+                        const statusEl = document.getElementById('lastStatus');
+                        if (countEl) countEl.textContent = 'Jumlah data: ' + (Array.isArray(disasters) ? disasters.length : '-');
+                        if (statusEl) statusEl.textContent = 'Status: OK';
+                    } catch (e) {
+                        console.warn('Failed to update lastCount/lastStatus', e);
+                    }
+
                     // Only proceed if map is initialized
-                    if (!map || typeof map.removeLayer !== 'function') {
+                    if (!map || !markerGroup) {
                         console.warn('Map not initialized yet');
                         return;
                     }
                     
-                    // Clear old markers safely
+                    // Clear old markers before adding new ones
                     try {
-                        Object.keys(markers).forEach(key => {
-                            if (markers[key] && typeof map.removeLayer === 'function') {
-                                map.removeLayer(markers[key]);
-                            }
-                        });
+                        markerGroup.clearLayers();
+                        markers = {};
                     } catch (e) {
-                        console.warn('Error clearing markers:', e);
+                        console.warn('Error clearing marker group:', e);
                     }
-                    markers = {};
 
                     if (disasters.length === 0) {
                         console.warn('No disaster data received from API');
@@ -2476,9 +2559,9 @@
                         const icon = getMarkerIcon(color);
 
                         const marker = L.marker([disaster.lat, disaster.lng], { icon: icon })
-                            .addTo(map)
                             .bindPopup(createPopupContent(disaster));
 
+                        markerGroup.addLayer(marker);
                         markers[disaster.id] = marker;
                     });
                     
@@ -2489,15 +2572,23 @@
 
         function startRealTimeUpdates() {
             // Load immediately on page load
+            console.log('Starting real-time updates (interval 15s) at', new Date().toISOString());
             loadDisasterData();
 
-            // Update setiap 10 detik untuk real-time data
-            updateInterval = setInterval(loadDisasterData, 10000);
+            // Update setiap 15 detik untuk real-time data
+            updateInterval = setInterval(() => {
+                console.log('Interval tick: loading disaster data at', new Date().toISOString());
+                loadDisasterData();
+            }, 15000);
         }
 
         function stopRealTimeUpdates() {
             if (updateInterval) {
                 clearInterval(updateInterval);
+                updateInterval = null;
+                console.log('Stopped real-time updates at', new Date().toISOString());
+            } else {
+                console.log('stopRealTimeUpdates called but no interval active');
             }
         }
 
@@ -2653,6 +2744,84 @@
             updateNavbarAndButtons();
             revealOnScroll();
             triggerCounters();
+        })();
+    </script>
+    <script>
+        // Legend toggle for mobile/tablet
+        (function() {
+            const legend = document.getElementById('mapLegend');
+            const toggleBtn = document.getElementById('legendToggleBtn');
+
+            if (!legend || !toggleBtn) return;
+
+            function openLegend() {
+                legend.classList.remove('hidden');
+                toggleBtn.setAttribute('aria-expanded', 'true');
+                // ensure legend is focused for keyboard users
+                legend.setAttribute('tabindex', '-1');
+                legend.focus();
+            }
+
+            function closeLegend() {
+                legend.classList.add('hidden');
+                toggleBtn.setAttribute('aria-expanded', 'false');
+            }
+
+            toggleBtn.addEventListener('click', function(e) {
+                const isHidden = legend.classList.contains('hidden');
+                if (isHidden) openLegend(); else closeLegend();
+            });
+
+            // close button inside legend
+            const closeBtn = legend.querySelector('.legend-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    closeLegend();
+                });
+            }
+
+            // prevent map from intercepting touch/pointer events when interacting with legend
+            ['pointerdown','pointerup','touchstart','touchend','click'].forEach(evt => {
+                legend.addEventListener(evt, function(e) {
+                    e.stopPropagation();
+                }, { passive: false });
+                toggleBtn.addEventListener(evt, function(e) {
+                    e.stopPropagation();
+                }, { passive: false });
+            });
+
+            // allow Esc key to close legend
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && !legend.classList.contains('hidden')) {
+                    closeLegend();
+                }
+            });
+
+            // On initial load, if viewport is small ensure legend is hidden
+            if (window.matchMedia && window.matchMedia('(max-width: 520px)').matches) {
+                legend.classList.add('hidden');
+                toggleBtn.setAttribute('aria-expanded', 'false');
+            }
+
+            // Wire manual refresh button if present
+            const manualBtn = document.getElementById('manualRefreshBtn');
+            if (manualBtn) {
+                manualBtn.addEventListener('click', function() {
+                    console.log('Manual refresh clicked at', new Date().toISOString());
+                    // show temporary status
+                    const statusEl = document.getElementById('lastStatus');
+                    if (statusEl) statusEl.textContent = 'Status: Memuat...';
+                    loadDisasterData();
+                });
+            }
+
+            // --- TAMBAHAN UNTUK REFRESH OTOMATIS SETIAP 15 DETIK ---
+            setInterval(function() {
+                console.log('Auto refresh triggered at', new Date().toISOString());
+                const statusEl = document.getElementById('lastStatus');
+                if (statusEl) statusEl.textContent = 'Status: Memuat...';
+                loadDisasterData();
+            }, 15000); // 15000 milidetik = 15 detik
         })();
     </script>
 </body>

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Donation;
+use App\Models\User;
 
 class Report extends Model
 {
@@ -21,6 +22,7 @@ class Report extends Model
         'goal_amount',
         'unique_key',
         'source',
+        'user_id',
     ];
 
     protected $casts = [
@@ -32,6 +34,11 @@ class Report extends Model
     public function donations()
     {
         return $this->hasMany(Donation::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function getTotalDonations()
@@ -48,3 +55,4 @@ class Report extends Model
         return min(100, ($total / $this->goal_amount) * 100);
     }
 }
+

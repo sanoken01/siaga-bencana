@@ -3,11 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Report;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Donation extends Model
 {
-    protected $fillable = [
+       protected $fillable = [
         'report_id',
         'donor_name',
         'email',
@@ -15,9 +15,8 @@ class Donation extends Model
         'payment_method',
         'message',
     ];
-
-    public function report()
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(Report::class);
+        return $this->belongsTo(User::class);
     }
 }

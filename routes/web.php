@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\AdminReportController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DonasiController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,9 +20,7 @@ Route::middleware('auth')->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
-    })->middleware('admin')->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->middleware('admin')->name('admin.dashboard');
 
     Route::middleware('admin')->group(function () {
         Route::get('/admin/reports', [AdminReportController::class, 'index'])->name('admin.reports');
@@ -29,7 +28,7 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-Route::resource('reports', ReportController::class);
+Route::middleware('auth')->resource('reports', ReportController::class);
 
 Route::middleware('auth')->group(function () {
     Route::get('reports/{report}/donate', [DonasiController::class, 'create'])->name('reports.donate');
