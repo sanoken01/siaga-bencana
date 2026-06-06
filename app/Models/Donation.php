@@ -15,8 +15,9 @@ class Donation extends Model
         'payment_method',
         'message',
     ];
-    public function user(): BelongsTo
+
+    public function report(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Report::class);
     }
 }

@@ -14,7 +14,7 @@ class AdminMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->user()?->role !== 'admin') {
-            abort(403, 'Akses ditolak. Halaman ini hanya untuk admin.');
+            return redirect()->route('welcome');
         }
 
         return $next($request);

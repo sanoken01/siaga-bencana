@@ -12,7 +12,7 @@ class AdminController extends Controller
     public function dashboard()
     {
         $reports = Report::with('user')->latest()->get();
-        $donations = Donation::with('user', 'report')->latest()->get();
+        $donations = Donation::with('report')->latest()->get();
         $users = User::latest()->get();
         
         $stats = [

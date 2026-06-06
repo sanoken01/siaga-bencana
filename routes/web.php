@@ -9,15 +9,16 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
 
 Route::get('/api/disaster-data', [ReportController::class, 'getDisasterData']);
 Route::middleware('auth')->group(function () {
+    Route::get('/logout', [App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])->name('logout.get');
     Route::get('/donasi', [DonasiController::class, 'index'])->name('donasi');
     Route::post('/donasi', [DonasiController::class, 'store'])->name('donasi.store');
 
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        return redirect('/');
     })->name('dashboard');
 
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->middleware('admin')->name('admin.dashboard');

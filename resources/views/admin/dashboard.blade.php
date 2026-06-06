@@ -8,10 +8,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-900" style="font-family: 'Sora', sans-serif;">
     <div class="flex min-h-screen">
@@ -22,10 +26,18 @@
             </div>
 
             <nav class="mt-10 space-y-2 text-sm">
-                <button onclick="switchTab('overview')" class="tab-btn active block w-full rounded-xl bg-cyan-500/20 px-4 py-3 font-semibold text-cyan-100 text-left transition hover:bg-slate-800">Dashboard</button>
-                <button onclick="switchTab('bencana')" class="tab-btn block w-full rounded-xl px-4 py-3 text-slate-300 text-left transition hover:bg-slate-800 hover:text-white">Manajemen Bencana</button>
-                <button onclick="switchTab('donasi')" class="tab-btn block w-full rounded-xl px-4 py-3 text-slate-300 text-left transition hover:bg-slate-800 hover:text-white">Manajemen Donasi</button>
-                <button onclick="switchTab('laporan')" class="tab-btn block w-full rounded-xl px-4 py-3 text-slate-300 text-left transition hover:bg-slate-800 hover:text-white">Laporan Pengguna</button>
+                <button onclick="switchTab('overview', this)" class="tab-btn active block w-full rounded-xl bg-cyan-500/20 px-4 py-3 font-semibold text-cyan-100 text-left transition hover:bg-slate-800">
+                    <i class="fa-solid fa-chart-line mr-2"></i> Dashboard
+                </button>
+                <button onclick="switchTab('bencana', this)" class="tab-btn block w-full rounded-xl px-4 py-3 text-slate-300 text-left transition hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-house-fire mr-2"></i> Data Bencana
+                </button>
+                <button onclick="switchTab('donasi', this)" class="tab-btn block w-full rounded-xl px-4 py-3 text-slate-300 text-left transition hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-hand-holding-heart mr-2"></i> Data Donasi
+                </button>
+                <button onclick="switchTab('users', this)" class="tab-btn block w-full rounded-xl px-4 py-3 text-slate-300 text-left transition hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-users-gear mr-2"></i> Data Pengguna
+                </button>
             </nav>
 
             <div class="mt-auto text-xs text-slate-400">Role: {{ ucfirst(Auth::user()->role) }}</div>
@@ -39,12 +51,9 @@
                         <p class="text-sm text-slate-500">Kontrol pusat untuk statistik dan manajemen data Siaga Bencana.</p>
                     </div>
 
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">
-                            Logout
-                        </button>
-                    </form>
+                    <a href="{{ route('logout.get') }}" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">
+                        Logout
+                    </a>
                 </div>
             </header>
 
@@ -78,9 +87,9 @@
                             <h3 class="text-lg font-bold">Manajemen Data</h3>
                             <p class="mt-2 text-sm text-slate-600">Kelola data bencana, donasi, dan laporan dari satu panel terpusat.</p>
                             <div class="mt-4 flex flex-wrap gap-2">
-                                <button onclick="switchTab('bencana')" class="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-500">Data Bencana</button>
-                                <button onclick="switchTab('donasi')" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500">Data Donasi</button>
-                                <button onclick="switchTab('laporan')" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-500">Data Laporan</button>
+                                <button onclick="switchTab('bencana', document.querySelectorAll('.tab-btn')[1])" class="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-500">Data Bencana</button>
+                                <button onclick="switchTab('donasi', document.querySelectorAll('.tab-btn')[2])" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500">Data Donasi</button>
+                                <button onclick="switchTab('users', document.querySelectorAll('.tab-btn')[3])" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-500">Data Pengguna</button>
                             </div>
                         </article>
 
@@ -98,7 +107,7 @@
                 <!-- TAB: DATA BENCANA -->
                 <section id="tab-bencana" class="tab-content hidden">
                     <div class="mb-4">
-                        <h2 class="text-2xl font-bold">Manajemen Data Bencana</h2>
+                        <h2 class="text-2xl font-bold text-cyan-800">Manajemen Data Bencana</h2>
                         <p class="text-sm text-slate-600">Total: {{ $reports->count() }} laporan</p>
                     </div>
 
@@ -135,7 +144,7 @@
                 <!-- TAB: DATA DONASI -->
                 <section id="tab-donasi" class="tab-content hidden">
                     <div class="mb-4">
-                        <h2 class="text-2xl font-bold">Manajemen Donasi</h2>
+                        <h2 class="text-2xl font-bold text-emerald-700">Manajemen Donasi</h2>
                         <p class="text-sm text-slate-600">Total: {{ $donations->count() }} donasi | Dana: Rp {{ number_format($donations->sum('amount') ?? 0, 0, ',', '.') }}</p>
                     </div>
 
@@ -153,7 +162,7 @@
                             <tbody class="divide-y divide-slate-200">
                                 @forelse($donations as $donation)
                                     <tr class="hover:bg-slate-50">
-                                        <td class="px-6 py-4 font-medium">{{ $donation->user?->name ?? $donation->name }}</td>
+                                        <td class="px-6 py-4 font-medium">{{ $donation->donor_name }}</td>
                                         <td class="px-6 py-4">{{ $donation->email }}</td>
                                         <td class="px-6 py-4 font-semibold text-green-600">Rp {{ number_format($donation->amount, 0, ',', '.') }}</td>
                                         <td class="px-6 py-4"><span class="rounded bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">{{ $donation->payment_method ?? '-' }}</span></td>
@@ -169,10 +178,10 @@
                     </div>
                 </section>
 
-                <!-- TAB: DATA LAPORAN PENGGUNA -->
-                <section id="tab-laporan" class="tab-content hidden">
+                <!-- TAB: DATA PENGGUNA -->
+                <section id="tab-users" class="tab-content hidden">
                     <div class="mb-4">
-                        <h2 class="text-2xl font-bold">Data Pengguna</h2>
+                        <h2 class="text-2xl font-bold text-rose-700">Manajemen Data Pengguna</h2>
                         <p class="text-sm text-slate-600">Total: {{ $users->count() }} pengguna</p>
                     </div>
 
@@ -214,7 +223,7 @@
     </div>
 
     <script>
-        function switchTab(tabName) {
+        function switchTab(tabName, btn) {
             // Hide semua tab
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
             
@@ -225,8 +234,15 @@
             }
 
             // Update button active state
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'bg-cyan-500/20', 'text-cyan-100'));
-            event.target.classList.add('active', 'bg-cyan-500/20', 'text-cyan-100');
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active', 'bg-cyan-500/20', 'text-cyan-100');
+                b.classList.add('text-slate-300');
+            });
+            
+            if (btn) {
+                btn.classList.add('active', 'bg-cyan-500/20', 'text-cyan-100');
+                btn.classList.remove('text-slate-300');
+            }
         }
     </script>
 </body>

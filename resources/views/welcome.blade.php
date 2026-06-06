@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>SIAGA BENCANA - Platform Monitoring Bencana Indonesia</title>
 
     <!-- Google Font: Poppins -->
@@ -200,7 +201,7 @@
             transform: scaleX(1);
         }
 
-        .btn-login-admin {
+        .btn-login {
             display: inline-flex;
             align-items: center;
             gap: 0.45rem;
@@ -214,7 +215,7 @@
             transition: transform var(--transition-fast), box-shadow var(--transition-fast);
         }
 
-        .btn-login-admin:hover {
+        .btn-login:hover {
             transform: translateY(-2px);
             box-shadow: 0 12px 24px rgba(0, 142, 255, 0.35);
         }
@@ -787,6 +788,7 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 1rem;
+            transition: opacity 0.5s ease;
         }
 
         .status-card {
@@ -1789,8 +1791,8 @@
 
             <div class="nav-actions">
                 @guest
-                    <a href="{{ route('login') }}" class="btn-login-admin">
-                        <i class="fa-solid fa-user-shield"></i>
+                    <a href="{{ route('login') }}" class="btn-login">
+                        <i class="fa-solid fa-right-to-bracket"></i>
                         Login
                     </a>
                     <a href="{{ route('register') }}" class="btn-register">
@@ -1827,14 +1829,10 @@
                                 Profil Saya
                             </a>
                 
-                            <div class="profile-menu-divider"></div>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="profile-menu-item profile-logout">
-                                    <i class="fa-solid fa-right-from-bracket"></i>
-                                    Logout
-                                </button>
-                            </form>
+                            <a href="{{ route('logout.get') }}" class="profile-menu-item profile-logout">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                Logout
+                            </a>
                         </div>
                     </div>
                 @endauth
@@ -2427,16 +2425,33 @@
             const statusList = document.querySelector('.status-list');
             if (!statusList) return;
 
-            // Clear existing cards
-            statusList.innerHTML = '';
-
-            // Sort data by newest date first, then take the top 3
-            const sortedDisasters = disasters.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+            // Sort data by newest date first (menggunakan created_at jika ada, atau date)
+            const sortedDisasters = disasters.slice().sort((a, b) => {
+                const dateA = new Date(a.date.replace(' ', 'T'));
+                const dateB = new Date(b.date.replace(' ', 'T'));
+                return dateB - dateA;
+            });
+            
             const recentDisasters = sortedDisasters.slice(0, 3);
 
-            recentDisasters.forEach(disaster => {
-                const card = document.createElement('article');
-                card.className = 'status-card';
+            // Jika data sama persis dengan yang sedang ditampilkan, jangan render ulang
+            const currentIds = Array.from(statusList.querySelectorAll('.status-card')).map(c => c.dataset.id);
+            const newIds = recentDisasters.map(d => String(d.id));
+            
+            if (JSON.stringify(currentIds) === JSON.stringify(newIds)) {
+                console.log('Data is same, skipping render');
+                return;
+            }
+
+            // Clear existing cards with fade out
+            statusList.style.opacity = '0';
+            
+            setTimeout(() => {
+                statusList.innerHTML = '';
+                recentDisasters.forEach(disaster => {
+                    const card = document.createElement('article');
+                    card.className = 'status-card reveal in-view';
+                    card.dataset.id = disaster.id;
 
                 // Get icon based on disaster type
                 let iconClass = 'fa-solid fa-triangle-exclamation'; // default
@@ -2493,10 +2508,18 @@
                 `;
 
                 statusList.appendChild(card);
-            });
+                });
+                
+                // Fade in
+                statusList.style.transition = 'opacity 0.5s ease';
+                statusList.style.opacity = '1';
+            }, 300);
         }
 
         function loadDisasterData() {
+            const statusEl = document.getElementById('lastStatus');
+            if (statusEl) statusEl.textContent = 'Status: Memuat...';
+
             const url = '/api/disaster-data?timestamp=' + Date.now();
             console.log('Requesting', url, 'at', new Date().toISOString());
             fetch(url, { cache: 'no-store', credentials: 'same-origin' })
@@ -2567,11 +2590,16 @@
                     
                     console.log('Total markers added:', Object.keys(markers).length);
                 })
-                .catch(error => console.error('Error loading disaster data:', error));
+                .catch(error => {
+                    console.error('Error loading disaster data:', error);
+                    const statusEl = document.getElementById('lastStatus');
+                    if (statusEl) statusEl.textContent = 'Status: Gagal memuat data';
+                });
         }
 
         function startRealTimeUpdates() {
-            // Load immediately on page load
+            if (updateInterval) return; // Mencegah duplikasi interval
+
             console.log('Starting real-time updates (interval 15s) at', new Date().toISOString());
             loadDisasterData();
 
@@ -2606,7 +2634,7 @@
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
                 stopRealTimeUpdates();
-            } else if (map) {
+            } else {
                 startRealTimeUpdates();
             }
         });
@@ -2807,21 +2835,13 @@
             const manualBtn = document.getElementById('manualRefreshBtn');
             if (manualBtn) {
                 manualBtn.addEventListener('click', function() {
-                    console.log('Manual refresh clicked at', new Date().toISOString());
-                    // show temporary status
-                    const statusEl = document.getElementById('lastStatus');
-                    if (statusEl) statusEl.textContent = 'Status: Memuat...';
+                    console.log('Manual refresh clicked');
                     loadDisasterData();
                 });
             }
 
-            // --- TAMBAHAN UNTUK REFRESH OTOMATIS SETIAP 15 DETIK ---
-            setInterval(function() {
-                console.log('Auto refresh triggered at', new Date().toISOString());
-                const statusEl = document.getElementById('lastStatus');
-                if (statusEl) statusEl.textContent = 'Status: Memuat...';
-                loadDisasterData();
-            }, 15000); // 15000 milidetik = 15 detik
+            // Pastikan update otomatis berjalan
+            startRealTimeUpdates();
         })();
     </script>
 </body>
