@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,9 @@ Route::get('login', [AuthenticatedSessionController::class, 'create'])
     ->name('login');
 
 Route::middleware('guest')->group(function () {
+    Route::get('auth/google', [SocialiteController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('auth/google/callback', [SocialiteController::class, 'handleGoogleCallback']);
+
     Route::post('register', [RegisteredUserController::class, 'store']);
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);

@@ -15,6 +15,7 @@ class Report extends Model
         'report_date',
         'description',
         'status',
+        'is_confirmed',
         'latitude',
         'longitude',
         'prediction_percentage',
@@ -26,7 +27,7 @@ class Report extends Model
     ];
 
     protected $casts = [
-        'report_date' => 'date',
+        'report_date' => 'datetime',
         'latitude' => 'float',
         'longitude' => 'float',
     ];

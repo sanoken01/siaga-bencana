@@ -99,6 +99,48 @@ class DisasterDataService
         }
     }
 
+    private function parseBmkgCoordinate($coord)
+    {
+        if (empty($coord)) return 0;
+        
+        // Bersihkan string dari karakter non-numerik kecuali titik dan minus
+        // BMKG sering mengembalikan format "7.25 LS" atau "110.20 BT"
+        $numericValue = (float) preg_replace('/[^0-9.-]/', '', $coord);
+        
+        // Jika ada "LS" (Lintang Selatan) atau "S", maka nilai harus negatif
+        if (str_contains(strtoupper($coord), 'LS') || str_contains(strtoupper($coord), 'S')) {
+            return -abs($numericValue);
+        }
+        
+        return $numericValue;
+    }
+
+    private function parseBmkgDateTime($tanggal, $jam)
+    {
+        try {
+            // BMKG format contoh: Tanggal: 08 Jun 2026, Jam: 13:21:48 WIB
+            // Bersihkan timezone (WIB, WITA, WIT)
+            $jamClean = preg_replace('/\s+(WIB|WITA|WIT)$/i', '', $jam);
+            
+            // Map bulan Indonesia ke Inggris jika perlu
+            $months = [
+                'Jan' => 'Jan', 'Feb' => 'Feb', 'Mar' => 'Mar', 'Apr' => 'Apr', 'Mei' => 'May', 'Jun' => 'Jun',
+                'Jul' => 'Jul', 'Agu' => 'Aug', 'Sep' => 'Sep', 'Okt' => 'Oct', 'Nov' => 'Nov', 'Des' => 'Dec'
+            ];
+            
+            foreach ($months as $id => $en) {
+                if (str_contains($tanggal, $id)) {
+                    $tanggal = str_replace($id, $en, $tanggal);
+                    break;
+                }
+            }
+
+            return \Carbon\Carbon::parse($tanggal . ' ' . $jamClean);
+        } catch (\Exception $e) {
+            return now();
+        }
+    }
+
     private function saveBmkgEarthquakeData($data)
     {
         if (isset($data['Infogempa']['gempa'])) {
@@ -113,9 +155,9 @@ class DisasterDataService
                     'title' => 'Gempa Bumi ' . $gempa['Magnitude'] . ' - ' . $gempa['Wilayah'],
                     'disaster_type' => 'Gempa Bumi',
                     'location' => $gempa['Wilayah'],
-                    'latitude' => (float) $gempa['Lintang'],
-                    'longitude' => (float) $gempa['Bujur'],
-                    'report_date' => now(),
+                    'latitude' => $this->parseBmkgCoordinate($gempa['Lintang']),
+                    'longitude' => $this->parseBmkgCoordinate($gempa['Bujur']),
+                    'report_date' => $this->parseBmkgDateTime($gempa['Tanggal'], $gempa['Jam']),
                     'description' => 'Gempa bumi dengan magnitude ' . $gempa['Magnitude'] . ' di ' . $gempa['Wilayah'] . '. Kedalaman: ' . $gempa['Kedalaman'] . '. Waktu: ' . $gempa['Tanggal'] . ' ' . $gempa['Jam'],
                     'status' => 'Diverifikasi',
                     'disaster_status' => 'Terjadi',
@@ -138,9 +180,9 @@ class DisasterDataService
                         'title' => 'Gempa Bumi ' . $gempa['Magnitude'] . ' - ' . $gempa['Wilayah'],
                         'disaster_type' => 'Gempa Bumi',
                         'location' => $gempa['Wilayah'],
-                        'latitude' => (float) $gempa['Lintang'],
-                        'longitude' => (float) $gempa['Bujur'],
-                        'report_date' => now(),
+                        'latitude' => $this->parseBmkgCoordinate($gempa['Lintang']),
+                        'longitude' => $this->parseBmkgCoordinate($gempa['Bujur']),
+                        'report_date' => $this->parseBmkgDateTime($gempa['Tanggal'], $gempa['Jam']),
                         'description' => 'Gempa bumi dengan magnitude ' . $gempa['Magnitude'] . ' di ' . $gempa['Wilayah'] . '. Kedalaman: ' . $gempa['Kedalaman'] . '. Waktu: ' . $gempa['Tanggal'] . ' ' . $gempa['Jam'],
                         'status' => 'Diverifikasi',
                         'disaster_status' => 'Terjadi',
@@ -164,9 +206,9 @@ class DisasterDataService
                         'title' => 'Gempa Bumi M5+ ' . $gempa['Magnitude'] . ' - ' . $gempa['Wilayah'],
                         'disaster_type' => 'Gempa Bumi',
                         'location' => $gempa['Wilayah'],
-                        'latitude' => (float) $gempa['Lintang'],
-                        'longitude' => (float) $gempa['Bujur'],
-                        'report_date' => now(),
+                        'latitude' => $this->parseBmkgCoordinate($gempa['Lintang']),
+                        'longitude' => $this->parseBmkgCoordinate($gempa['Bujur']),
+                        'report_date' => $this->parseBmkgDateTime($gempa['Tanggal'], $gempa['Jam']),
                         'description' => 'Gempa bumi signifikan M5+ dengan magnitude ' . $gempa['Magnitude'] . ' di ' . $gempa['Wilayah'] . '. Kedalaman: ' . $gempa['Kedalaman'] . '. Waktu: ' . $gempa['Tanggal'] . ' ' . $gempa['Jam'],
                         'status' => 'Diverifikasi',
                         'disaster_status' => 'Terjadi',
@@ -190,9 +232,9 @@ class DisasterDataService
                         'title' => 'Gempa Dirasakan ' . $gempa['Magnitude'] . ' - ' . $gempa['Wilayah'],
                         'disaster_type' => 'Gempa Bumi',
                         'location' => $gempa['Wilayah'],
-                        'latitude' => (float) $gempa['Lintang'],
-                        'longitude' => (float) $gempa['Bujur'],
-                        'report_date' => now(),
+                        'latitude' => $this->parseBmkgCoordinate($gempa['Lintang']),
+                        'longitude' => $this->parseBmkgCoordinate($gempa['Bujur']),
+                        'report_date' => $this->parseBmkgDateTime($gempa['Tanggal'], $gempa['Jam']),
                         'description' => 'Gempa bumi yang dirasakan dengan magnitude ' . $gempa['Magnitude'] . ' di ' . $gempa['Wilayah'] . '. Kedalaman: ' . $gempa['Kedalaman'] . '. Waktu: ' . $gempa['Tanggal'] . ' ' . $gempa['Jam'],
                         'status' => 'Diverifikasi',
                         'disaster_status' => 'Terjadi',

@@ -96,9 +96,21 @@
         .form-grid { display: grid; gap: 16px; }
         .field { display: grid; gap: 8px; }
         .label { display: inline-flex; align-items: center; gap: 8px; font-size: 0.92rem; font-weight: 600; color: #1b3b63; }
-        .input, .select { width: 100%; min-height: 50px; padding: 0 15px; border-radius: var(--radius-md); border: 1px solid rgba(79, 172, 254, 0.24); background: #fff; color: #17395e; font: inherit; transition: var(--transition); }
-        .input:focus, .select:focus { outline: none; border-color: #4a9dff; box-shadow: 0 0 0 4px rgba(79, 153, 255, 0.16); transform: translateY(-1px); }
-        .input::placeholder { color: #90a2b9; }
+        .input, .select, .search-input { width: 100%; min-height: 50px; padding: 0 15px; border-radius: var(--radius-md); border: 1px solid rgba(79, 172, 254, 0.24); background: #fff; color: #17395e; font: inherit; transition: var(--transition); }
+        .input:focus, .select:focus, .search-input:focus { outline: none; border-color: #4a9dff; box-shadow: 0 0 0 4px rgba(79, 153, 255, 0.16); transform: translateY(-1px); }
+        .input::placeholder, .search-input::placeholder { color: #90a2b9; }
+
+        /* Searchable Selection Styles */
+        .search-container { position: relative; }
+        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--line); border-radius: var(--radius-md); margin-top: 8px; box-shadow: var(--shadow-strong); z-index: 100; max-height: 250px; overflow-y: auto; display: none; }
+        .search-results.is-visible { display: block; }
+        .search-item { padding: 12px 16px; cursor: pointer; border-bottom: 1px solid rgba(79, 172, 254, 0.1); transition: var(--transition); }
+        .search-item:last-child { border-bottom: none; }
+        .search-item:hover { background: rgba(79, 172, 254, 0.1); }
+        .search-item-title { font-weight: 600; color: #12345d; display: block; }
+        .search-item-meta { font-size: 0.82rem; color: var(--muted); }
+        .selected-badge { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 16px; background: rgba(79, 172, 254, 0.12); border: 1px solid var(--line); border-radius: var(--radius-md); color: #0d4e86; font-weight: 600; margin-bottom: 8px; }
+        .selected-badge button { background: none; border: none; color: #dc2626; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; }
         .quick-amounts { display: flex; flex-wrap: wrap; gap: 10px; }
         .quick-amount { border: 1px solid rgba(79, 172, 254, 0.22); background: rgba(255, 255, 255, 0.95); color: #15518d; border-radius: 999px; padding: 10px 14px; font: inherit; font-weight: 600; cursor: pointer; transition: var(--transition); }
         .quick-amount:hover, .quick-amount.is-active { background: linear-gradient(120deg, var(--blue-start), var(--blue-end)); border-color: transparent; color: #fff; box-shadow: 0 12px 24px rgba(8, 125, 225, 0.24); transform: translateY(-2px); }
@@ -248,6 +260,54 @@
                     @endif
 
                     <div class="form-grid">
+                        <div class="field">
+                            <label class="label"><i class="fa-solid fa-triangle-exclamation"></i> Pilih Bencana</label>
+                            
+                            <!-- Hidden input to store the actual selected ID -->
+                            <input type="hidden" id="report_id" name="report_id" value="{{ old('report_id') }}" required>
+
+                            <div class="search-container">
+                                <!-- Badge for selected disaster (shown when selected) -->
+                                <div id="selected-disaster-badge" class="selected-badge" style="{{ old('report_id') ? '' : 'display:none;' }}">
+                                    <span id="selected-text">
+                                        @if(old('report_id'))
+                                            @php 
+                                                $selectedDisaster = $disasterReports->firstWhere('id', old('report_id'));
+                                            @endphp
+                                            {{ $selectedDisaster ? $selectedDisaster->title : '' }}
+                                        @endif
+                                    </span>
+                                    <button type="button" id="remove-selection" title="Hapus pilihan"><i class="fa-solid fa-circle-xmark"></i></button>
+                                </div>
+
+                                <!-- Search input (hidden when selected) -->
+                                <input 
+                                    type="text" 
+                                    id="disaster-search" 
+                                    class="search-input" 
+                                    placeholder="Ketik nama bencana atau lokasi..." 
+                                    autocomplete="off"
+                                    style="{{ old('report_id') ? 'display:none;' : '' }}"
+                                >
+
+                                <!-- Search results dropdown -->
+                                <div id="search-results" class="search-results">
+                                    @foreach($disasterReports as $disaster)
+                                        <div 
+                                            class="search-item" 
+                                            data-id="{{ $disaster->id }}" 
+                                            data-title="{{ $disaster->title }}"
+                                            data-search="{{ strtolower($disaster->title . ' ' . $disaster->location) }}"
+                                        >
+                                            <span class="search-item-title">{{ $disaster->title }}</span>
+                                            <span class="search-item-meta">{{ $disaster->location }}</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @error('report_id')<small class="helper" style="color:#dc2626;">{{ $message }}</small>@enderror
+                        </div>
+
                         <div class="field">
                             <label class="label" for="donor_name"><i class="fa-solid fa-user"></i> Nama Donatur</label>
                             <input type="text" id="donor_name" name="donor_name" class="input" value="{{ old('donor_name') }}" placeholder="Masukkan nama lengkap" required>
@@ -402,6 +462,64 @@
         const progressBars = document.querySelectorAll('.progress-observer');
         const historyBody = document.getElementById('donation-history-body');
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        // Searchable Disaster Logic
+        const disasterSearch = document.getElementById('disaster-search');
+        const searchResults = document.getElementById('search-results');
+        const searchItems = document.querySelectorAll('.search-item');
+        const reportIdInput = document.getElementById('report_id');
+        const selectedBadge = document.getElementById('selected-disaster-badge');
+        const selectedText = document.getElementById('selected-text');
+        const removeSelection = document.getElementById('remove-selection');
+
+        disasterSearch.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            let hasResults = false;
+
+            if (query.length > 0) {
+                searchItems.forEach(item => {
+                    const searchData = item.getAttribute('data-search');
+                    if (searchData.includes(query)) {
+                        item.style.display = 'block';
+                        hasResults = true;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                searchResults.classList.toggle('is-visible', hasResults);
+            } else {
+                searchResults.classList.remove('is-visible');
+            }
+        });
+
+        searchItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const id = item.getAttribute('data-id');
+                const title = item.getAttribute('data-title');
+
+                reportIdInput.value = id;
+                selectedText.innerText = title;
+                
+                selectedBadge.style.display = 'flex';
+                disasterSearch.style.display = 'none';
+                searchResults.classList.remove('is-visible');
+                disasterSearch.value = '';
+            });
+        });
+
+        removeSelection.addEventListener('click', () => {
+            reportIdInput.value = '';
+            selectedBadge.style.display = 'none';
+            disasterSearch.style.display = 'block';
+            disasterSearch.focus();
+        });
+
+        // Close search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!disasterSearch.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.classList.remove('is-visible');
+            }
+        });
 
         const endpoints = {
             store: '{{ route('api.donations.store') }}',

@@ -58,6 +58,12 @@
             </header>
 
             <main class="p-5 sm:p-8">
+                @if(session('success'))
+                    <div class="mb-4 rounded-xl bg-emerald-100 p-4 text-sm font-semibold text-emerald-700 shadow-sm">
+                        <i class="fa-solid fa-circle-check mr-2"></i> {{ session('success') }}
+                    </div>
+                @endif
+                
                 <!-- TAB: OVERVIEW -->
                 <section id="tab-overview" class="tab-content">
                     <div class="grid gap-4 md:grid-cols-4">
@@ -96,9 +102,9 @@
                         <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                             <h3 class="text-lg font-bold">Aktivitas Terkini</h3>
                             <ul class="mt-3 space-y-3 text-sm text-slate-600">
-                                <li class="rounded-lg bg-slate-50 px-3 py-2">✓ {{ $reports->count() }} laporan bencana tercatat</li>
-                                <li class="rounded-lg bg-slate-50 px-3 py-2">✓ {{ $donations->count() }} donasi diterima</li>
-                                <li class="rounded-lg bg-slate-50 px-3 py-2">✓ {{ $users->count() }} pengguna terdaftar</li>
+                                <li class="rounded-lg bg-slate-50 px-3 py-2">✓ {{ $reports->total() }} laporan bencana tercatat</li>
+                                <li class="rounded-lg bg-slate-50 px-3 py-2">✓ {{ $donations->total() }} donasi diterima</li>
+                                <li class="rounded-lg bg-slate-50 px-3 py-2">✓ {{ $users->total() }} pengguna terdaftar</li>
                             </ul>
                         </article>
                     </section>
@@ -106,9 +112,11 @@
 
                 <!-- TAB: DATA BENCANA -->
                 <section id="tab-bencana" class="tab-content hidden">
-                    <div class="mb-4">
-                        <h2 class="text-2xl font-bold text-cyan-800">Manajemen Data Bencana</h2>
-                        <p class="text-sm text-slate-600">Total: {{ $reports->count() }} laporan</p>
+                    <div class="mb-4 flex items-center justify-between">
+                        <div>
+                            <h2 class="text-2xl font-bold text-cyan-800">Manajemen Data Bencana</h2>
+                            <p class="text-sm text-slate-600">Total: {{ $reports->total() }} laporan</p>
+                        </div>
                     </div>
 
                     <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -120,6 +128,8 @@
                                     <th class="px-6 py-3 text-left font-semibold text-slate-700">Tipe</th>
                                     <th class="px-6 py-3 text-left font-semibold text-slate-700">Pengguna</th>
                                     <th class="px-6 py-3 text-left font-semibold text-slate-700">Tanggal</th>
+                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Status</th>
+                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-200">
@@ -127,25 +137,50 @@
                                     <tr class="hover:bg-slate-50">
                                         <td class="px-6 py-4 font-medium">{{ $report->title }}</td>
                                         <td class="px-6 py-4">{{ $report->location ?? '-' }}</td>
-                                        <td class="px-6 py-4"><span class="rounded bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">{{ $report->type }}</span></td>
+                                        <td class="px-6 py-4"><span class="rounded bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">{{ $report->disaster_type }}</span></td>
                                         <td class="px-6 py-4">{{ $report->user?->name ?? 'Unknown' }}</td>
                                         <td class="px-6 py-4 text-slate-600">{{ $report->created_at->format('d M Y') }}</td>
+                                        <td class="px-6 py-4">
+                                            @if($report->is_confirmed)
+                                                <span class="rounded bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Dikonfirmasi</span>
+                                            @else
+                                                <span class="rounded bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">Menunggu</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            @if(!$report->is_confirmed)
+                                                <form action="{{ route('admin.reports.confirm', $report) }}" method="POST" onsubmit="return confirm('Konfirmasi laporan ini?');">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" class="rounded bg-cyan-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-cyan-500">
+                                                        Konfirmasi
+                                                    </button>
+                                                </form>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-6 py-4 text-center text-slate-500">Tidak ada data bencana</td>
+                                        <td colspan="7" class="px-6 py-4 text-center text-slate-500">Tidak ada data bencana</td>
                                     </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
+                    <div class="mt-4">
+                        {{ $reports->appends(['tab' => 'bencana'])->links() }}
+                    </div>
                 </section>
 
                 <!-- TAB: DATA DONASI -->
                 <section id="tab-donasi" class="tab-content hidden">
-                    <div class="mb-4">
-                        <h2 class="text-2xl font-bold text-emerald-700">Manajemen Donasi</h2>
-                        <p class="text-sm text-slate-600">Total: {{ $donations->count() }} donasi | Dana: Rp {{ number_format($donations->sum('amount') ?? 0, 0, ',', '.') }}</p>
+                    <div class="mb-4 flex items-center justify-between">
+                        <div>
+                            <h2 class="text-2xl font-bold text-emerald-700">Manajemen Donasi</h2>
+                            <p class="text-sm text-slate-600">Total: {{ $donations->total() }} donasi | Dana: Rp {{ number_format($donations->sum('amount') ?? 0, 0, ',', '.') }}</p>
+                        </div>
                     </div>
 
                     <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -176,13 +211,18 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="mt-4">
+                        {{ $donations->appends(['tab' => 'donasi'])->links() }}
+                    </div>
                 </section>
 
                 <!-- TAB: DATA PENGGUNA -->
                 <section id="tab-users" class="tab-content hidden">
-                    <div class="mb-4">
-                        <h2 class="text-2xl font-bold text-rose-700">Manajemen Data Pengguna</h2>
-                        <p class="text-sm text-slate-600">Total: {{ $users->count() }} pengguna</p>
+                    <div class="mb-4 flex items-center justify-between">
+                        <div>
+                            <h2 class="text-2xl font-bold text-rose-700">Manajemen Data Pengguna</h2>
+                            <p class="text-sm text-slate-600">Total: {{ $users->total() }} pengguna</p>
+                        </div>
                     </div>
 
                     <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -217,6 +257,9 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="mt-4">
+                        {{ $users->appends(['tab' => 'users'])->links() }}
+                    </div>
                 </section>
             </main>
         </div>
@@ -244,6 +287,29 @@
                 btn.classList.remove('text-slate-300');
             }
         }
+
+        // Handle tab from URL on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            
+            if (tab) {
+                const tabBtnMap = {
+                    'overview': 0,
+                    'bencana': 1,
+                    'donasi': 2,
+                    'users': 3
+                };
+                
+                const btnIndex = tabBtnMap[tab];
+                if (btnIndex !== undefined) {
+                    const btns = document.querySelectorAll('.tab-btn');
+                    if (btns[btnIndex]) {
+                        switchTab(tab, btns[btnIndex]);
+                    }
+                }
+            }
+        });
     </script>
 </body>
 </html>

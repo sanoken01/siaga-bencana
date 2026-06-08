@@ -9,11 +9,11 @@ use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-    public function dashboard()
+    public function dashboard(Request $request)
     {
-        $reports = Report::with('user')->latest()->get();
-        $donations = Donation::with('report')->latest()->get();
-        $users = User::latest()->get();
+        $reports = Report::with('user')->latest()->paginate(10, ['*'], 'reports_page');
+        $donations = Donation::with('report')->latest()->paginate(10, ['*'], 'donations_page');
+        $users = User::latest()->paginate(10, ['*'], 'users_page');
         
         $stats = [
             'total_reports' => Report::count(),

@@ -29,6 +29,13 @@ class AdminReportController extends Controller
 
         $report->update(['goal_amount' => $request->input('goal_amount')]);
 
-        return redirect()->route('admin.reports')->with('success', 'Target donasi berhasil diperbarui!');
+        return redirect()->route('admin.dashboard')->with('success', 'Target donasi berhasil diperbarui!');
+    }
+
+    public function confirm(Report $report)
+    {
+        $report->update(['is_confirmed' => true]);
+
+        return redirect()->route('admin.dashboard')->with('success', 'Laporan berhasil dikonfirmasi dan dipublikasikan!');
     }
 }

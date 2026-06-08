@@ -77,6 +77,13 @@
 
 				<button type="submit" class="form-button">Login</button>
 
+				<div class="auth-divider">atau login dengan</div>
+
+				<a href="{{ route('auth.google') }}" class="btn-google">
+					<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+					Google
+				</a>
+
 				<p class="form-footer">
 					Belum punya akun?
 					<a href="{{ route('register') }}">Daftar</a>

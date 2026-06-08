@@ -15,11 +15,14 @@ class DonasiController extends Controller
 
     public function index()
     {
-        $reports = Report::where('source', 'BUMN')
-            ->whereNotNull('latitude')
+        $reports = Report::whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->where('disaster_type', '!=', '')
             ->where('disaster_status', 'Terjadi')
+            ->where(function($query) {
+                $query->where('is_confirmed', true)
+                      ->orWhere('source', 'BUMN');
+            })
             ->latest('report_date')
             ->get();
 
@@ -47,8 +50,12 @@ class DonasiController extends Controller
         $totalDonors = array_sum(array_column($activeDisasters, 'donors'));
         $disastersHelped = count($activeDisasters);
 
+        // Pass the raw reports to the view for the dropdown
+        $disasterReports = $reports;
+
         return view('donasi', compact(
             'activeDisasters',
+            'disasterReports',
             'donationHistory',
             'totalDonations',
             'totalDonors',
@@ -89,11 +96,14 @@ class DonasiController extends Controller
         $request->merge(['amount' => $amount]);
 
         $validated = $request->validate([
+            'report_id' => ['required', 'exists:reports,id'],
             'donor_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
             'amount' => ['required', 'numeric', 'min:1000'],
             'payment_method' => ['required', 'in:Transfer Bank,E-Wallet'],
         ], [
+            'report_id.required' => 'Bencana wajib dipilih.',
+            'report_id.exists' => 'Bencana yang dipilih tidak valid.',
             'donor_name.required' => 'Nama donatur wajib diisi.',
             'email.required' => 'Email wajib diisi.',
             'amount.required' => 'Nominal donasi wajib diisi.',

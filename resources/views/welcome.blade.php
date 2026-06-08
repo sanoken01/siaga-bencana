@@ -787,7 +787,7 @@
         .status-list {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 1rem;
+            gap: 1.25rem;
             transition: opacity 0.5s ease;
         }
 
@@ -917,9 +917,16 @@
                 linear-gradient(130deg, #f6fcff, #eaf6ff);
             border: 1px solid rgba(118, 211, 255, 0.4);
             box-shadow: 0 26px 52px rgba(11, 97, 160, 0.18);
-            padding: 2.4rem;
+            padding: 2rem;
             text-align: left;
             transition: transform var(--transition-medium), box-shadow var(--transition-medium), border-color var(--transition-medium);
+        }
+
+        @media (max-width: 768px) {
+            .map-display-card {
+                padding: 1rem;
+                min-height: 450px;
+            }
         }
 
         .map-display-card::before {
@@ -1172,88 +1179,112 @@
 
         .map-legend {
             position: absolute;
-            bottom: 5.2rem;
+            bottom: 1.5rem;
             right: 1rem;
-            background: white;
-            padding: 1rem 1.2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            font-size: 0.82rem;
             z-index: 2200;
-            max-width: 220px;
+            max-width: 240px;
             pointer-events: auto;
-            touch-action: manipulation;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
         }
 
         /* hidden state for legend */
         .map-legend.hidden {
-            display: none !important;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px) scale(0.95);
+            pointer-events: none;
         }
 
         /* legend close button (small x) */
         .legend-close {
             position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 30px;
-            height: 30px;
-            border-radius: 8px;
-            display: inline-grid;
+            top: 6px;
+            right: 6px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: none; /* Only show on mobile/tablet */
             place-items: center;
-            background: transparent;
+            background: #f1f5f9;
             border: 0;
-            color: #2b5a88;
+            color: #475569;
             cursor: pointer;
-            font-size: 0.95rem;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+
+        .legend-close:hover {
+            background: #e2e8f0;
         }
 
         /* floating toggle button for small screens */
         .legend-toggle-btn {
             position: absolute;
-            top: 1rem;
+            bottom: 1rem;
             right: 1rem;
             z-index: 2300;
-            background: rgba(255,255,255,0.95);
-            border: 1px solid rgba(16,116,185,0.08);
-            padding: 0.45rem 0.6rem;
-            border-radius: 10px;
-            box-shadow: 0 6px 18px rgba(8,63,122,0.08);
-            display: none; /* shown only on small screens */
+            background: #ffffff;
+            color: #0d6efd;
+            border: 1px solid rgba(13, 110, 253, 0.2);
+            padding: 0.6rem 1rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            display: none; 
+            align-items: center;
+            gap: 0.5rem;
             font-weight: 700;
-            pointer-events: auto;
-            touch-action: manipulation;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .legend-toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         }
 
         .map-legend h4 {
-            margin: 0 0 0.6rem 0;
+            margin: 0 0 0.75rem 0;
             font-weight: 700;
-            color: #0e447d;
-            font-size: 0.9rem;
+            color: #0f172a;
+            font-size: 0.88rem;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 0.5rem;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 920px) {
+            .legend-toggle-btn {
+                display: flex;
+            }
             .map-legend {
-                right: 0.8rem;
-                bottom: 6.8rem;
-                max-width: 210px;
+                display: block; /* ensure it's block, but hidden by class */
+                bottom: 4.5rem;
+                right: 1rem;
+                max-width: 220px;
+            }
+            .map-legend.hidden {
+                display: block !important; /* override the display:none if used */
+                opacity: 0;
+                visibility: hidden;
+            }
+            .legend-close {
+                display: grid;
             }
         }
 
         @media (max-width: 520px) {
             .map-legend {
-                right: 0.6rem;
-                left: 0.6rem;
-                bottom: 6.8rem;
-                max-width: calc(100% - 1.2rem);
-            }
-            /* hide legend by default on very small screens to improve map visibility */
-            .map-legend {
-                display: none;
-            }
-            .legend-toggle-btn {
-                display: inline-flex;
-                right: 0.8rem;
-                top: 0.8rem;
+                right: 0.75rem;
+                left: 0.75rem;
+                bottom: 4.5rem;
+                max-width: none;
             }
         }
 
@@ -1907,10 +1938,12 @@
 
                     <div class="map-preview" id="mapContainer">
                     <div id="interactiveMap"></div>
-                    <button id="legendToggleBtn" class="legend-toggle-btn" aria-controls="mapLegend" aria-expanded="false">Bencana</button>
+                    <button id="legendToggleBtn" class="legend-toggle-btn" aria-controls="mapLegend" aria-expanded="false">
+                        <i class="fa-solid fa-circle-info"></i> Legenda
+                    </button>
                     <div class="map-legend" id="mapLegend" role="region" aria-label="Bencana Status">
-                        <button type="button" class="legend-close" aria-label="Tutup Bencana">×</button>
-                        <h4>Bencana Status</h4>
+                        <button type="button" class="legend-close" aria-label="Tutup Bencana"><i class="fa-solid fa-xmark"></i></button>
+                        <h4>Legenda Status Bencana</h4>
                         <div class="legend-item">
                             <div class="legend-color" style="background-color: #FF0000;"></div>
                             <span>Bencana Terjadi</span>
@@ -1971,7 +2004,7 @@
         <div class="container">
             <div class="quick-report-card">
                 <div>
-                    <h3>Laporan Cepat Kejadian Bencana</h3>
+                    <h3>Laporan Cepat Kejadian Bencana Banjir dan Gempa Bumi</h3>
                     <p>Kirim laporan langsung dari lapangan agar tim tanggap darurat dapat memverifikasi dan menindaklanjuti lebih cepat.</p>
                 </div>
                 <a href="{{ route('reports.index') }}" class="btn-quick-report">
@@ -2118,29 +2151,32 @@
 
             <div class="article-grid">
                 <article class="article-card">
-                    <div class="article-image" style="background-image: linear-gradient(130deg, #4facfe, #00c6ff);"></div>
+                    <div class="article-image" style="background-image: url('https://images.unsplash.com/photo-1532187875605-2fe3587b1598?q=80&w=2070&auto=format&fit=crop');"></div>
                     <div class="article-content">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full mb-2 inline-block">Mitigasi</span>
                         <h3>Checklist Tas Siaga 72 Jam</h3>
                         <p>Susun perlengkapan wajib yang harus tersedia agar keluarga siap saat evakuasi darurat.</p>
-                        <a href="#" class="read-more">Baca Selengkapnya <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="{{ route('edukasi.tas-siaga') }}" class="read-more">Baca Selengkapnya <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </article>
 
                 <article class="article-card">
-                    <div class="article-image" style="background-image: linear-gradient(130deg, #64d8ff, #38bdf8);"></div>
+                    <div class="article-image" style="background-image: url('https://images.unsplash.com/photo-1511044491314-f1da25424509?q=80&w=2070&auto=format&fit=crop');"></div>
                     <div class="article-content">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full mb-2 inline-block">Edukasi</span>
                         <h3>Panduan Evakuasi Gempa Aman</h3>
                         <p>Langkah cepat melindungi diri saat gempa di rumah, kantor, sekolah, dan ruang publik.</p>
-                        <a href="#" class="read-more">Baca Selengkapnya <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="{{ route('edukasi.gempa') }}" class="read-more">Baca Selengkapnya <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </article>
 
                 <article class="article-card">
-                    <div class="article-image" style="background-image: linear-gradient(130deg, #53c3ff, #70d6ff);"></div>
+                    <div class="article-image" style="background-image: url('https://images.unsplash.com/photo-1454165833767-027ff33027b6?q=80&w=2070&auto=format&fit=crop');"></div>
                     <div class="article-content">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full mb-2 inline-block">Berita Utama</span>
                         <h3>Membaca Status Peringatan Dini</h3>
                         <p>Pahami arti level aman, waspada, dan siaga agar tindakan evakuasi lebih tepat waktu.</p>
-                        <a href="#" class="read-more">Baca Selengkapnya <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="{{ route('edukasi.peringatan-dini') }}" class="read-more">Baca Selengkapnya <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </article>
             </div>
@@ -2233,6 +2269,7 @@
         let markers = {};
         let markerGroup = null;
         let updateInterval = null;
+        let allDisasters = []; // Menyimpan semua data bencana untuk diacak
 
         function initializeMap() {
             if (!map) {
@@ -2355,9 +2392,27 @@
             }
         }
 
-        function getMarkerIcon(color) {
+        function getMarkerIcon(color, type) {
+            // Tentukan ikon berdasarkan tipe bencana
+            let iconClass = 'fa-solid fa-triangle-exclamation'; // default
+            if (type.toLowerCase().includes('gempa')) {
+                iconClass = 'fa-solid fa-house-crack';
+            } else if (type.toLowerCase().includes('banjir')) {
+                iconClass = 'fa-solid fa-water';
+            } else if (type.toLowerCase().includes('longsor')) {
+                iconClass = 'fa-solid fa-mountain-city';
+            } else if (type.toLowerCase().includes('tsunami')) {
+                iconClass = 'fa-solid fa-wave-square';
+            } else if (type.toLowerCase().includes('angin') || type.toLowerCase().includes('badai')) {
+                iconClass = 'fa-solid fa-wind';
+            } else if (type.toLowerCase().includes('gunung')) {
+                iconClass = 'fa-solid fa-volcano';
+            }
+
             const html = `
-                <div class="custom-marker" style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 0 0 2px #333, 0 3px 8px rgba(0,0,0,0.5);"></div>
+                <div class="custom-marker" style="background-color: ${color}; width: 32px; height: 32px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 3px 10px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; color: ${color === '#FFFFFF' ? '#333' : '#fff'}; font-size: 14px;">
+                    <i class="${iconClass}"></i>
+                </div>
             `;
             return L.divIcon({
                 html: html,
@@ -2423,32 +2478,18 @@
 
         function renderStatusCards(disasters) {
             const statusList = document.querySelector('.status-list');
-            if (!statusList) return;
+            if (!statusList || !disasters || disasters.length === 0) return;
 
-            // Sort data by newest date first (menggunakan created_at jika ada, atau date)
-            const sortedDisasters = disasters.slice().sort((a, b) => {
-                const dateA = new Date(a.date.replace(' ', 'T'));
-                const dateB = new Date(b.date.replace(' ', 'T'));
-                return dateB - dateA;
-            });
+            // Acak data dan ambil 3 teratas
+            const shuffled = [...disasters].sort(() => 0.5 - Math.random());
+            const randomDisasters = shuffled.slice(0, 3);
             
-            const recentDisasters = sortedDisasters.slice(0, 3);
-
-            // Jika data sama persis dengan yang sedang ditampilkan, jangan render ulang
-            const currentIds = Array.from(statusList.querySelectorAll('.status-card')).map(c => c.dataset.id);
-            const newIds = recentDisasters.map(d => String(d.id));
-            
-            if (JSON.stringify(currentIds) === JSON.stringify(newIds)) {
-                console.log('Data is same, skipping render');
-                return;
-            }
-
             // Clear existing cards with fade out
             statusList.style.opacity = '0';
             
             setTimeout(() => {
                 statusList.innerHTML = '';
-                recentDisasters.forEach(disaster => {
+                randomDisasters.forEach(disaster => {
                     const card = document.createElement('article');
                     card.className = 'status-card reveal in-view';
                     card.dataset.id = disaster.id;
@@ -2532,9 +2573,11 @@
                 .then(disasters => {
                     const now = new Date();
                     console.log('Disasters loaded:', disasters, 'at', now.toISOString());
+                    
+                    allDisasters = disasters; // Simpan ke global variable
 
-                    // Render status cards
-                    renderStatusCards(disasters);
+                    // Render status cards (acak 3)
+                    renderStatusCards(allDisasters);
 
                     // Update last-updated UI
                     try {
@@ -2579,7 +2622,7 @@
                     disasters.forEach(disaster => {
                         console.log('Adding marker for:', disaster.title, 'Color:', disaster.color);
                         const color = disaster.color;
-                        const icon = getMarkerIcon(color);
+                        const icon = getMarkerIcon(color, disaster.type);
 
                         const marker = L.marker([disaster.lat, disaster.lng], { icon: icon })
                             .bindPopup(createPopupContent(disaster));
@@ -2603,10 +2646,14 @@
             console.log('Starting real-time updates (interval 15s) at', new Date().toISOString());
             loadDisasterData();
 
-            // Update setiap 15 detik untuk real-time data
+            // Update setiap 15 detik untuk mengacak tampilan data
             updateInterval = setInterval(() => {
-                console.log('Interval tick: loading disaster data at', new Date().toISOString());
-                loadDisasterData();
+                console.log('Interval tick: shuffling disaster data at', new Date().toISOString());
+                if (allDisasters.length > 0) {
+                    renderStatusCards(allDisasters);
+                } else {
+                    loadDisasterData();
+                }
             }, 15000);
         }
 
@@ -2826,7 +2873,7 @@
             });
 
             // On initial load, if viewport is small ensure legend is hidden
-            if (window.matchMedia && window.matchMedia('(max-width: 520px)').matches) {
+            if (window.matchMedia && window.matchMedia('(max-width: 920px)').matches) {
                 legend.classList.add('hidden');
                 toggleBtn.setAttribute('aria-expanded', 'false');
             }
@@ -2835,8 +2882,12 @@
             const manualBtn = document.getElementById('manualRefreshBtn');
             if (manualBtn) {
                 manualBtn.addEventListener('click', function() {
-                    console.log('Manual refresh clicked');
-                    loadDisasterData();
+                    console.log('Manual shuffle/refresh clicked');
+                    if (allDisasters.length > 0) {
+                        renderStatusCards(allDisasters);
+                    } else {
+                        loadDisasterData();
+                    }
                 });
             }
 

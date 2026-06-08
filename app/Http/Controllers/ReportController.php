@@ -57,11 +57,12 @@ class ReportController extends Controller
                 'disaster_status' => $request->input('disaster_status', 'Prediksi'),
                 'source' => 'Laporan Cepat',
                 'prediction_percentage' => 0,
+                'is_confirmed' => false, // Ensure new reports are unconfirmed
             ]
         ));
 
         return redirect()->route('reports.index')
-                         ->with('success', 'Laporan berhasil ditambahkan!');
+                         ->with('success', 'Laporan berhasil dikirim dan menunggu konfirmasi admin!');
     }
 
     public function edit(Report $report)
@@ -126,6 +127,10 @@ class ReportController extends Controller
         $disasters = Report::whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->where('disaster_type', '!=', '')
+            ->where(function($query) {
+                $query->where('is_confirmed', true)
+                      ->orWhere('source', 'BUMN'); // Assume BUMN reports are auto-confirmed
+            })
             ->latest('report_date')
             ->get()
             ->map(function ($disaster) {

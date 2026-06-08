@@ -352,6 +352,32 @@
             box-shadow: 0 16px 24px rgba(15, 74, 156, 0.16);
         }
 
+        .btn-location {
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            background: rgba(79, 172, 254, 0.1);
+            border: 1px solid var(--line);
+            color: #0b63cc;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .btn-location:hover {
+            background: rgba(79, 172, 254, 0.2);
+            border-color: #4facfe;
+        }
+
+        .btn-location:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         @media (max-width: 768px) {
             .page-wrapper {
                 padding: 58px 0 74px;
@@ -514,10 +540,16 @@
                         </div>
 
                         <div class="field-group">
-                            <label for="location" class="field-label">
-                                <i class="fa-solid fa-location-dot"></i>
-                                Lokasi Kejadian
-                            </label>
+                            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                                <label for="location" class="field-label" style="margin-bottom: 0;">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    Lokasi Kejadian
+                                </label>
+                                <button type="button" id="get-location" class="btn-location">
+                                    <i class="fa-solid fa-location-crosshairs"></i>
+                                    Gunakan Lokasi Saat Ini
+                                </button>
+                            </div>
                             <div class="input-wrap">
                                 <input
                                     type="text"
@@ -633,6 +665,57 @@
             const total = descriptionField.value.trim().length;
             counter.textContent = `${total} karakter`;
         }
+
+        // Geolocation Logic
+        const getLocationBtn = document.getElementById('get-location');
+        const locationInput = document.getElementById('location');
+        const latInput = document.getElementById('latitude');
+        const lngInput = document.getElementById('longitude');
+
+        getLocationBtn.addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                alert('Browser Anda tidak mendukung fitur lokasi.');
+                return;
+            }
+
+            getLocationBtn.disabled = true;
+            getLocationBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mencari...';
+
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    latInput.value = lat.toFixed(6);
+                    lngInput.value = lng.toFixed(6);
+
+                    try {
+                        // Reverse Geocoding using OpenStreetMap (Nominatim)
+                        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+                        const data = await response.json();
+                        
+                        if (data && data.display_name) {
+                            locationInput.value = data.display_name;
+                        } else {
+                            locationInput.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                        }
+                    } catch (error) {
+                        console.error('Reverse geocoding error:', error);
+                        locationInput.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                    } finally {
+                        getLocationBtn.disabled = false;
+                        getLocationBtn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i> Gunakan Lokasi Saat Ini';
+                    }
+                },
+                (error) => {
+                    console.error('Geolocation error:', error);
+                    alert('Gagal mendapatkan lokasi. Pastikan izin lokasi telah diberikan.');
+                    getLocationBtn.disabled = false;
+                    getLocationBtn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i> Gunakan Lokasi Saat Ini';
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        });
 
         disasterTypeSelect.addEventListener('change', syncDisasterIcon);
         descriptionField.addEventListener('input', syncDescriptionCounter);
