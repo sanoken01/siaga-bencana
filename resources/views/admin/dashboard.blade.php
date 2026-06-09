@@ -38,6 +38,9 @@
                 <button onclick="switchTab('users', this)" class="tab-btn block w-full rounded-xl px-4 py-3 text-slate-300 text-left transition hover:bg-slate-800 hover:text-white">
                     <i class="fa-solid fa-users-gear mr-2"></i> Data Pengguna
                 </button>
+                <button onclick="switchTab('tracking', this)" class="tab-btn block w-full rounded-xl px-4 py-3 text-slate-300 text-left transition hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-history mr-2"></i> Pelacakan Donasi
+                </button>
             </nav>
 
             <div class="mt-auto text-xs text-slate-400">Role: {{ ucfirst(Auth::user()->role) }}</div>
@@ -122,55 +125,43 @@
                         </a>
                     </div>
 
-                    <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-                        <table class="w-full text-sm">
-                            <thead class="border-b border-slate-200 bg-slate-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Judul</th>
-                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Lokasi</th>
-                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Tipe</th>
-                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Pengguna</th>
-                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Tanggal</th>
-                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Status</th>
-                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200">
-                                @forelse($reports as $report)
-                                    <tr class="hover:bg-slate-50">
-                                        <td class="px-6 py-4 font-medium">{{ $report->title }}</td>
-                                        <td class="px-6 py-4">{{ $report->location ?? '-' }}</td>
-                                        <td class="px-6 py-4"><span class="rounded bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">{{ $report->disaster_type }}</span></td>
-                                        <td class="px-6 py-4">{{ $report->user?->name ?? 'Unknown' }}</td>
-                                        <td class="px-6 py-4 text-slate-600">{{ $report->created_at->format('d M Y') }}</td>
-                                        <td class="px-6 py-4">
-                                            @if($report->is_confirmed)
-                                                <span class="rounded bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Dikonfirmasi</span>
-                                            @else
-                                                <span class="rounded bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">Menunggu</span>
-                                            @endif
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            @if(!$report->is_confirmed)
-                                                <form action="{{ route('admin.reports.confirm', $report) }}" method="POST" onsubmit="return confirm('Konfirmasi laporan ini?');">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="submit" class="rounded bg-cyan-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-cyan-500">
-                                                        Konfirmasi
-                                                    </button>
-                                                </form>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="px-6 py-4 text-center text-slate-500">Tidak ada data bencana</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        @forelse($reports as $report)
+                            <article class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+                                <div class="absolute left-0 top-0 h-full w-1 {{ $report->is_confirmed ? 'bg-cyan-500' : 'bg-amber-500' }}"></div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="rounded bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700 uppercase">
+                                        {{ $report->disaster_type }}
+                                    </span>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider {{ $report->is_confirmed ? 'text-green-600' : 'text-amber-600' }}">
+                                        {{ $report->is_confirmed ? 'Dikonfirmasi' : 'Menunggu' }}
+                                    </span>
+                                </div>
+                                <h4 class="font-bold text-slate-900 line-clamp-1">{{ $report->title }}</h4>
+                                <div class="mt-2 flex items-center gap-1 text-xs text-slate-500">
+                                    <i class="fa-solid fa-location-dot text-[10px]"></i>
+                                    <span>{{ $report->location ?? '-' }}</span>
+                                </div>
+                                <div class="mt-4 flex items-center justify-between border-t border-slate-50 pt-3">
+                                    <div class="text-[10px] text-slate-400">
+                                        By: <span class="font-bold text-slate-600">{{ $report->user?->name ?? 'System' }}</span>
+                                    </div>
+                                    @if(!$report->is_confirmed)
+                                        <form action="{{ route('admin.reports.confirm', $report) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="rounded-lg bg-cyan-600 px-3 py-1.5 text-[10px] font-bold text-white transition hover:bg-cyan-700">
+                                                Konfirmasi
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
+                            </article>
+                        @empty
+                            <div class="col-span-full rounded-2xl border-2 border-dashed border-slate-200 p-12 text-center text-slate-500">
+                                Tidak ada data bencana.
+                            </div>
+                        @endforelse
                     </div>
                     <div class="mt-4">
                         {{ $reports->appends(['tab' => 'bencana'])->links() }}
@@ -179,42 +170,42 @@
 
                 <!-- TAB: DATA DONASI -->
                 <section id="tab-donasi" class="tab-content hidden">
-                    <div class="mb-4 flex items-center justify-between">
-                        <div>
-                            <h2 class="text-2xl font-bold text-emerald-700">Manajemen Donasi</h2>
-                            <p class="text-sm text-slate-600">Total: {{ $donations->total() }} donasi | Dana: Rp {{ number_format($donations->sum('amount') ?? 0, 0, ',', '.') }}</p>
-                        </div>
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-emerald-700">Manajemen Donasi</h2>
+                        <p class="text-sm text-slate-600">Daftar kontribusi masuk dari para relawan.</p>
                     </div>
 
-                    <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-                        <table class="w-full text-sm">
-                            <thead class="border-b border-slate-200 bg-slate-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Donatur</th>
-                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Email</th>
-                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Jumlah</th>
-                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Metode</th>
-                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Tanggal</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200">
-                                @forelse($donations as $donation)
-                                    <tr class="hover:bg-slate-50">
-                                        <td class="px-6 py-4 font-medium">{{ $donation->donor_name }}</td>
-                                        <td class="px-6 py-4">{{ $donation->email }}</td>
-                                        <td class="px-6 py-4 font-semibold text-green-600">Rp {{ number_format($donation->amount, 0, ',', '.') }}</td>
-                                        <td class="px-6 py-4"><span class="rounded bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">{{ $donation->payment_method ?? '-' }}</span></td>
-                                        <td class="px-6 py-4 text-slate-600">{{ $donation->created_at->format('d M Y') }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="px-6 py-4 text-center text-slate-500">Tidak ada data donasi</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        @forelse($donations as $donation)
+                            <article class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+                                <div class="absolute left-0 top-0 h-full w-1 bg-emerald-500"></div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="rounded-full bg-emerald-100 px-3 py-1 text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
+                                        {{ $donation->payment_method ?? 'Transfer' }}
+                                    </span>
+                                    <span class="text-xs text-slate-400">{{ $donation->created_at->format('d M Y') }}</span>
+                                </div>
+                                <h4 class="font-bold text-slate-900">{{ $donation->donor_name }}</h4>
+                                <p class="text-xs text-slate-500 mb-3">{{ $donation->email }}</p>
+                                <div class="border-t border-slate-50 pt-3 mt-3">
+                                    <p class="text-xs text-slate-400 mb-1 text-[10px] uppercase font-bold tracking-tight">Jumlah Donasi:</p>
+                                    <p class="text-xl font-black text-emerald-600">Rp {{ number_format($donation->amount, 0, ',', '.') }}</p>
+                                </div>
+                                @if($donation->report)
+                                    <div class="mt-3 flex items-center gap-2 rounded-lg bg-slate-50 p-2 text-[10px]">
+                                        <i class="fa-solid fa-location-dot text-amber-500"></i>
+                                        <span class="truncate font-medium text-slate-600">{{ $donation->report->title }}</span>
+                                    </div>
+                                @endif
+                            </article>
+                        @empty
+                            <div class="col-span-full rounded-2xl border-2 border-dashed border-slate-200 p-12 text-center text-slate-500">
+                                Tidak ada data donasi.
+                            </div>
+                        @endforelse
                     </div>
-                    <div class="mt-4">
+
+                    <div class="mt-6">
                         {{ $donations->appends(['tab' => 'donasi'])->links() }}
                     </div>
                 </section>
@@ -231,40 +222,96 @@
                         </a>
                     </div>
 
-                    <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-                        <table class="w-full text-sm">
-                            <thead class="border-b border-slate-200 bg-slate-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Nama</th>
-                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Email</th>
-                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Role</th>
-                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Laporan</th>
-                                    <th class="px-6 py-3 text-left font-semibold text-slate-700">Terdaftar</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200">
-                                @forelse($users as $user)
-                                    <tr class="hover:bg-slate-50">
-                                        <td class="px-6 py-4 font-medium">{{ $user->name }}</td>
-                                        <td class="px-6 py-4">{{ $user->email }}</td>
-                                        <td class="px-6 py-4">
-                                            <span class="rounded px-3 py-1 text-xs font-semibold {{ $user->role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700' }}">
-                                                {{ ucfirst($user->role) }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4">{{ $user->reports->count() ?? 0 }}</td>
-                                        <td class="px-6 py-4 text-slate-600">{{ $user->created_at->format('d M Y') }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="px-6 py-4 text-center text-slate-500">Tidak ada data pengguna</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        @forelse($users as $user)
+                            <article class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+                                <div class="absolute left-0 top-0 h-full w-1 {{ $user->role === 'admin' ? 'bg-rose-500' : 'bg-blue-500' }}"></div>
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-900 leading-tight">{{ $user->name }}</h4>
+                                        <span class="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider {{ $user->role === 'admin' ? 'bg-rose-100 text-rose-700' : 'bg-blue-100 text-blue-700' }}">
+                                            {{ $user->role }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="space-y-2 border-t border-slate-50 pt-3">
+                                    <div class="flex items-center justify-between text-xs">
+                                        <span class="text-slate-400">Email:</span>
+                                        <span class="font-medium text-slate-700 truncate max-w-[150px]">{{ $user->email }}</span>
+                                    </div>
+                                    <div class="flex items-center justify-between text-xs">
+                                        <span class="text-slate-400">Laporan:</span>
+                                        <span class="font-bold text-slate-900">{{ $user->reports->count() }}</span>
+                                    </div>
+                                    <div class="flex items-center justify-between text-xs">
+                                        <span class="text-slate-400">Joined:</span>
+                                        <span class="text-slate-500">{{ $user->created_at->format('M Y') }}</span>
+                                    </div>
+                                </div>
+                            </article>
+                        @empty
+                            <div class="col-span-full rounded-2xl border-2 border-dashed border-slate-200 p-12 text-center text-slate-500">
+                                Tidak ada data pengguna.
+                            </div>
+                        @endforelse
                     </div>
                     <div class="mt-4">
                         {{ $users->appends(['tab' => 'users'])->links() }}
+                    </div>
+                </section>
+
+                <!-- TAB: PELACAKAN DONASI -->
+                <section id="tab-tracking" class="tab-content hidden">
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-cyan-800">Pelacakan Donasi Terakhir</h2>
+                        <p class="text-sm text-slate-600">Snapshot kontribusi terbaru dari setiap pengguna.</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        @forelse($trackingData as $user)
+                            @php $lastDonation = $user->latestDonation; @endphp
+                            <article class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+                                <div class="absolute left-0 top-0 h-full w-1 bg-cyan-500"></div>
+                                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                                    <div class="flex items-start gap-4">
+                                        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-cyan-100 text-cyan-700">
+                                            <i class="fa-solid fa-user"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-slate-900">{{ $user->name }}</h4>
+                                            <p class="text-xs text-slate-500">{{ $user->email }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex-1 border-slate-100 md:border-l md:pl-8">
+                                        <div class="flex items-center gap-2 text-sm">
+                                            <span class="font-semibold text-slate-700">Donasi Terakhir:</span>
+                                            <span class="font-bold text-emerald-600">Rp {{ number_format($lastDonation->amount, 0, ',', '.') }}</span>
+                                        </div>
+                                        <div class="mt-1 flex items-center gap-2">
+                                            <span class="text-xs text-slate-400">Target:</span>
+                                            <span class="text-xs font-medium text-slate-700">{{ $lastDonation->report->title ?? '-' }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-right">
+                                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Pushed at:</p>
+                                        <p class="text-sm font-bold text-slate-700">{{ $lastDonation->created_at->format('d M Y H:i') }}</p>
+                                    </div>
+                                </div>
+                            </article>
+                        @empty
+                            <div class="rounded-2xl border-2 border-dashed border-slate-200 p-12 text-center text-slate-500">
+                                Belum ada data pelacakan.
+                            </div>
+                        @endforelse
+                    </div>
+
+                    <div class="mt-6">
+                        {{ $trackingData->appends(['tab' => 'tracking'])->links() }}
                     </div>
                 </section>
             </main>
@@ -304,7 +351,8 @@
                     'overview': 0,
                     'bencana': 1,
                     'donasi': 2,
-                    'users': 3
+                    'users': 3,
+                    'tracking': 4
                 };
                 
                 const btnIndex = tabBtnMap[tab];

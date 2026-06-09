@@ -16,6 +16,12 @@ class AdminController extends Controller
         $donations = Donation::with('report')->latest()->paginate(10, ['*'], 'donations_page');
         $users = User::latest()->paginate(10, ['*'], 'users_page');
         
+        // Tracking data: latest donation per user with disaster info
+        $trackingData = User::whereHas('donations')
+            ->with(['latestDonation.report'])
+            ->latest()
+            ->paginate(10, ['*'], 'tracking_page');
+
         $stats = [
             'total_reports' => Report::count(),
             'total_donations' => Donation::count(),
@@ -23,7 +29,7 @@ class AdminController extends Controller
             'total_funds' => Donation::sum('amount') ?? 0,
         ];
 
-        return view('admin.dashboard', compact('reports', 'donations', 'users', 'stats'));
+        return view('admin.dashboard', compact('reports', 'donations', 'users', 'stats', 'trackingData'));
     }
 
     public function userCreate()
