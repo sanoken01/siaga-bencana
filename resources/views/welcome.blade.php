@@ -1356,33 +1356,58 @@
            EDUKASI & TIPS
         ============================================================ */
         .education {
-            background: linear-gradient(145deg, #eff9ff 0%, #f7fcff 100%);
+            position: relative;
+            background:
+                radial-gradient(circle at top right, rgba(131, 212, 255, 0.35), transparent 25%),
+                radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.12), transparent 32%),
+                linear-gradient(145deg, #eef9ff 0%, #f7fcff 55%, #ffffff 100%);
+        }
+
+        .education .section-heading h2 {
+            max-width: 760px;
+            margin-inline: auto;
+        }
+
+        .education .section-heading p {
+            max-width: 760px;
+            margin-inline: auto;
         }
 
         .article-grid {
             display: grid;
             grid-template-columns: repeat(1, minmax(0, 1fr));
-            gap: 1rem;
+            gap: 1.2rem;
         }
 
         .article-card {
+            position: relative;
             border-radius: var(--radius-lg);
             overflow: hidden;
-            background: #ffffff;
-            border: 1px solid #dcf0ff;
-            box-shadow: 0 12px 30px rgba(10, 103, 171, 0.1);
-            transition: transform var(--transition-medium), box-shadow var(--transition-medium);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(12, 131, 198, 0.14);
+            box-shadow: 0 18px 44px rgba(10, 103, 171, 0.12);
+            transition: transform var(--transition-medium), box-shadow var(--transition-medium), border-color var(--transition-medium);
+            backdrop-filter: blur(10px);
+        }
+
+        .article-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(14, 165, 233, 0.03) 100%);
+            pointer-events: none;
         }
 
         .article-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 18px 40px rgba(10, 103, 171, 0.16);
+            transform: translateY(-10px);
+            border-color: rgba(12, 131, 198, 0.24);
+            box-shadow: 0 24px 54px rgba(10, 103, 171, 0.16);
         }
 
         .article-image {
             position: relative;
             overflow: hidden;
-            height: 210px;
+            height: 225px;
             background-size: cover;
             background-position: center;
         }
@@ -1391,7 +1416,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(130deg, rgba(11, 86, 150, 0.22), rgba(0, 198, 255, 0.1));
+            background: linear-gradient(135deg, rgba(3, 105, 161, 0.25), rgba(0, 198, 255, 0.12) 58%, rgba(255, 255, 255, 0) 100%);
         }
 
         .article-card:hover .article-image {
@@ -1400,17 +1425,22 @@
         }
 
         .article-content {
-            padding: 1.2rem;
+            position: relative;
+            z-index: 1;
+            padding: 1.35rem 1.4rem 1.3rem;
         }
 
         .article-content h3 {
-            font-size: 1.06rem;
-            margin-bottom: 0.45rem;
+            font-size: 1.15rem;
+            line-height: 1.35;
+            margin-bottom: 0.55rem;
+            color: #0f1f3e;
         }
 
         .article-content p {
-            color: var(--text-secondary);
-            font-size: 0.91rem;
+            color: #526480;
+            font-size: 0.96rem;
+            line-height: 1.7;
             margin-bottom: 1rem;
         }
 
@@ -1418,15 +1448,16 @@
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
-            color: #0f6fb1;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: transform var(--transition-fast), color var(--transition-fast);
+            color: #0e78bf;
+            font-weight: 800;
+            font-size: 0.92rem;
+            transition: transform var(--transition-fast), color var(--transition-fast), letter-spacing var(--transition-fast);
         }
 
         .read-more:hover {
-            color: #0a588f;
-            transform: translateX(3px);
+            color: #09507d;
+            transform: translateX(4px);
+            letter-spacing: 0.01em;
         }
 
         /* ============================================================
@@ -2151,19 +2182,19 @@
 
             <div class="article-grid">
                 <article class="article-card">
-                    <div class="article-image" style="background-image: url('https://images.unsplash.com/photo-1532187875605-2fe3587b1598?q=80&w=2070&auto=format&fit=crop');"></div>
+                    <div class="article-image" style="background-image: url('https://cdn-1.timesmedia.co.id/images/2022/12/03/tas-siaga-bencana.jpg');"></div>
                     <div class="article-content">
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full mb-2 inline-block">Mitigasi</span>
+                        <span class="text-[10px] font-extrabold uppercase tracking-[0.22em] text-sky-700 bg-sky-50/90 border border-sky-100 px-2.5 py-1 rounded-full mb-3 inline-block">Mitigasi</span>
                         <h3>Checklist Tas Siaga 72 Jam</h3>
-                        <p>Susun perlengkapan wajib yang harus tersedia agar keluarga siap saat evakuasi darurat.</p>
+                        <p>Susun perlengkapan wajib agar keluarga bisa bergerak cepat tanpa panik saat evakuasi darurat.</p>
                         <a href="{{ route('edukasi.tas-siaga') }}" class="read-more">Baca Selengkapnya <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </article>
 
                 <article class="article-card">
-                    <div class="article-image" style="background-image: url('https://images.unsplash.com/photo-1511044491314-f1da25424509?q=80&w=2070&auto=format&fit=crop');"></div>
+                    <div class="article-image" style="background-image: url('https://gdb.voanews.com/0a3ad510-91cf-4325-b98e-09419ca9192f_w1200_r1.jpg');"></div>
                     <div class="article-content">
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full mb-2 inline-block">Edukasi</span>
+                        <span class="text-[10px] font-extrabold uppercase tracking-[0.22em] text-cyan-700 bg-cyan-50/90 border border-cyan-100 px-2.5 py-1 rounded-full mb-3 inline-block">Edukasi</span>
                         <h3>Panduan Evakuasi Gempa Aman</h3>
                         <p>Langkah cepat melindungi diri saat gempa di rumah, kantor, sekolah, dan ruang publik.</p>
                         <a href="{{ route('edukasi.gempa') }}" class="read-more">Baca Selengkapnya <i class="fa-solid fa-arrow-right"></i></a>
@@ -2171,11 +2202,11 @@
                 </article>
 
                 <article class="article-card">
-                    <div class="article-image" style="background-image: url('https://images.unsplash.com/photo-1454165833767-027ff33027b6?q=80&w=2070&auto=format&fit=crop');"></div>
+                    <div class="article-image" style="background-image: url('https://tse1.mm.bing.net/th/id/OIP.or5FE6l7RkC5PKsQCrNUXgHaFj?pid=Api&P=0&h=180');"></div>
                     <div class="article-content">
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full mb-2 inline-block">Berita Utama</span>
+                        <span class="text-[10px] font-extrabold uppercase tracking-[0.22em] text-sky-700 bg-sky-50/90 border border-sky-100 px-2.5 py-1 rounded-full mb-3 inline-block">Berita Utama</span>
                         <h3>Membaca Status Peringatan Dini</h3>
-                        <p>Pahami arti level aman, waspada, dan siaga agar tindakan evakuasi lebih tepat waktu.</p>
+                        <p>Pahami arti level aman, waspada, siaga, dan awas agar tindakan evakuasi lebih tepat waktu.</p>
                         <a href="{{ route('edukasi.peringatan-dini') }}" class="read-more">Baca Selengkapnya <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </article>
