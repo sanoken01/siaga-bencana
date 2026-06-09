@@ -40,12 +40,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/reports', [AdminReportController::class, 'index'])->name('admin.reports');
         Route::get('/admin/reports/create', [AdminReportController::class, 'create'])->name('admin.reports.create');
         Route::post('/admin/reports', [AdminReportController::class, 'store'])->name('admin.reports.store');
+        Route::get('/admin/reports/{report}/edit', [AdminReportController::class, 'edit'])->name('admin.reports.edit');
+        Route::put('/admin/reports/{report}', [AdminReportController::class, 'update'])->name('admin.reports.update');
+        Route::delete('/admin/reports/{report}', [AdminReportController::class, 'destroy'])->name('admin.reports.destroy');
         Route::patch('/admin/reports/{report}/goal', [AdminReportController::class, 'updateGoal'])->name('admin.report.goal');
         Route::patch('/admin/reports/{report}/confirm', [AdminReportController::class, 'confirm'])->name('admin.reports.confirm');
 
         // User Management
         Route::get('/admin/users/create', [AdminController::class, 'userCreate'])->name('admin.users.create');
         Route::post('/admin/users', [AdminController::class, 'userStore'])->name('admin.users.store');
+        Route::get('/admin/users/{user}/edit', [AdminController::class, 'userEdit'])->name('admin.users.edit');
+        Route::put('/admin/users/{user}', [AdminController::class, 'userUpdate'])->name('admin.users.update');
+        Route::delete('/admin/users/{user}', [AdminController::class, 'userDestroy'])->name('admin.users.destroy');
 
         // News Management
         Route::post('/admin/news', [AdminNewsController::class, 'store'])->name('admin.news.store');

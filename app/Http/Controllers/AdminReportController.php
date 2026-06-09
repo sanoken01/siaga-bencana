@@ -49,6 +49,36 @@ class AdminReportController extends Controller
         return redirect()->route('admin.dashboard')->with('success', 'Laporan bencana berhasil dibuat!');
     }
 
+    public function edit(Report $report)
+    {
+        return view('admin.reports.edit', compact('report'));
+    }
+
+    public function update(Request $request, Report $report)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'disaster_type' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'report_date' => 'required|date',
+            'description' => 'required|string',
+            'disaster_status' => 'required|in:Terjadi,Selesai,Prediksi',
+            'source' => 'required|string|max:255',
+        ]);
+
+        $report->update($validated);
+
+        return redirect()->route('admin.dashboard')->with('success', 'Laporan bencana berhasil diperbarui!');
+    }
+
+    public function destroy(Report $report)
+    {
+        $report->delete();
+        return redirect()->route('admin.dashboard')->with('success', 'Laporan bencana berhasil dihapus!');
+    }
+
     public function updateGoal(Request $request, Report $report)
     {
         $request->validate([

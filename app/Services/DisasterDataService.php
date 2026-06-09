@@ -171,33 +171,13 @@ class DisasterDataService
     private function saveBmkgRecentEarthquakes($data)
     {
         if (isset($data['Infogempa']['gempa'])) {
-            foreach ($data['Infogempa']['gempa'] as $gempa) {
-                $uniqueKey = 'bmkg_' . $gempa['Lintang'] . '_' . $gempa['Bujur'] . '_' . $gempa['Magnitude'] . '_' . substr($gempa['Tanggal'], 0, 10);
-
-                Report::updateOrCreate(
-                    ['unique_key' => $uniqueKey],
-                    [
-                        'title' => 'Gempa Bumi ' . $gempa['Magnitude'] . ' - ' . $gempa['Wilayah'],
-                        'disaster_type' => 'Gempa Bumi',
-                        'location' => $gempa['Wilayah'],
-                        'latitude' => $this->parseBmkgCoordinate($gempa['Lintang']),
-                        'longitude' => $this->parseBmkgCoordinate($gempa['Bujur']),
-                        'report_date' => $this->parseBmkgDateTime($gempa['Tanggal'], $gempa['Jam']),
-                        'description' => 'Gempa bumi dengan magnitude ' . $gempa['Magnitude'] . ' di ' . $gempa['Wilayah'] . '. Kedalaman: ' . $gempa['Kedalaman'] . '. Waktu: ' . $gempa['Tanggal'] . ' ' . $gempa['Jam'],
-                        'status' => 'Diverifikasi',
-                        'disaster_status' => 'Terjadi',
-                        'prediction_percentage' => 0,
-                        'source' => 'BUMN',
-                    ]
-                );
+            $gempaList = $data['Infogempa']['gempa'];
+            // Jika hanya satu gempa, jadikan array agar bisa diloop
+            if (isset($gempaList['Tanggal'])) {
+                $gempaList = [$gempaList];
             }
-        }
-    }
-
-    private function saveBmkgDirectEarthquakes($data)
-    {
-        if (isset($data['Infogempa']['gempa'])) {
-            foreach ($data['Infogempa']['gempa'] as $gempa) {
+            
+            foreach ($gempaList as $gempa) {
                 $uniqueKey = 'bmkg_' . $gempa['Lintang'] . '_' . $gempa['Bujur'] . '_' . $gempa['Magnitude'] . '_' . substr($gempa['Tanggal'], 0, 10);
 
                 Report::updateOrCreate(
@@ -209,7 +189,7 @@ class DisasterDataService
                         'latitude' => $this->parseBmkgCoordinate($gempa['Lintang']),
                         'longitude' => $this->parseBmkgCoordinate($gempa['Bujur']),
                         'report_date' => $this->parseBmkgDateTime($gempa['Tanggal'], $gempa['Jam']),
-                        'description' => 'Gempa bumi signifikan M5+ dengan magnitude ' . $gempa['Magnitude'] . ' di ' . $gempa['Wilayah'] . '. Kedalaman: ' . $gempa['Kedalaman'] . '. Waktu: ' . $gempa['Tanggal'] . ' ' . $gempa['Jam'],
+                        'description' => 'Gempa bumi signifikan (M >= 5.0) di ' . $gempa['Wilayah'] . '. Kedalaman: ' . $gempa['Kedalaman'] . '. Waktu: ' . $gempa['Tanggal'] . ' ' . $gempa['Jam'],
                         'status' => 'Diverifikasi',
                         'disaster_status' => 'Terjadi',
                         'prediction_percentage' => 0,
@@ -223,7 +203,12 @@ class DisasterDataService
     private function saveBmkgTerkiniEarthquakes($data)
     {
         if (isset($data['Infogempa']['gempa'])) {
-            foreach ($data['Infogempa']['gempa'] as $gempa) {
+            $gempaList = $data['Infogempa']['gempa'];
+            if (isset($gempaList['Tanggal'])) {
+                $gempaList = [$gempaList];
+            }
+
+            foreach ($gempaList as $gempa) {
                 $uniqueKey = 'bmkg_' . $gempa['Lintang'] . '_' . $gempa['Bujur'] . '_' . $gempa['Magnitude'] . '_' . substr($gempa['Tanggal'], 0, 10);
 
                 Report::updateOrCreate(
@@ -235,7 +220,7 @@ class DisasterDataService
                         'latitude' => $this->parseBmkgCoordinate($gempa['Lintang']),
                         'longitude' => $this->parseBmkgCoordinate($gempa['Bujur']),
                         'report_date' => $this->parseBmkgDateTime($gempa['Tanggal'], $gempa['Jam']),
-                        'description' => 'Gempa bumi yang dirasakan dengan magnitude ' . $gempa['Magnitude'] . ' di ' . $gempa['Wilayah'] . '. Kedalaman: ' . $gempa['Kedalaman'] . '. Waktu: ' . $gempa['Tanggal'] . ' ' . $gempa['Jam'],
+                        'description' => 'Gempa bumi yang dirasakan dengan magnitude ' . $gempa['Magnitude'] . ' di ' . $gempa['Wilayah'] . '. Skala MMI: ' . ($gempa['Dirasakan'] ?? '-') . '. Waktu: ' . $gempa['Tanggal'] . ' ' . $gempa['Jam'],
                         'status' => 'Diverifikasi',
                         'disaster_status' => 'Terjadi',
                         'prediction_percentage' => 0,
@@ -428,25 +413,28 @@ class DisasterDataService
 
     public function fetchAllData()
     {
-        self::info('Fetching data from BMKG...');
+        self::info('🚀 Memulai penarikan data dari BMKG (BUMN)...');
+        
+        // 1. Gempa Bumi Terbaru (M >= 5.0 atau Berpotensi Tsunami)
+        self::info('📡 Fetching: autogempa.json');
         $this->fetchBmkgEarthquakeData();
+        
+        // 2. Daftar 15 Gempa Bumi Terakhir (M >= 5.0)
+        self::info('📡 Fetching: gempaterkini.json');
         $this->fetchBmkgRecentEarthquakes();
-        $this->fetchBmkgDirectEarthquakes();
+        
+        // 3. Daftar 15 Gempa Bumi Dirasakan
+        self::info('📡 Fetching: gempadirasakan.json');
         $this->fetchBmkgTerkiniEarthquakes();
 
-        self::info('Fetching data from PetaBencana...');
+        self::info('🚀 Memulai penarikan data dari PetaBencana...');
         $this->fetchPetaBencanaFloodData();
 
-        self::info('Fetching data from USGS...');
+        self::info('🚀 Memulai penarikan data dari USGS & GDACS...');
         $this->fetchUsGsEarthquakeData();
-
-        self::info('Fetching data from GDACS...');
         $this->fetchGdacsData();
 
-        self::info('Fetching data from Panto Air...');
-        $this->fetchPantoAirData();
-
-        self::info('All disaster data fetched successfully!');
+        self::info('✅ Semua data bencana berhasil diperbarui!');
     }
 
     private static function info($message)

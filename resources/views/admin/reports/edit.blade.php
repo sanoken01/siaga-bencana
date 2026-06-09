@@ -1,106 +1,160 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-sky-50 via-cyan-50 to-blue-100 py-12">
-    <div class="container mx-auto max-w-3xl px-4">
-        <a href="{{ route('admin.dashboard', ['tab' => 'bencana']) }}" class="mb-5 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white/85 px-4 py-2 text-sm font-semibold text-sky-800 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-            <i class="fa-solid fa-arrow-left"></i> Kembali ke Dashboard
-        </a>
+<div class="min-h-screen bg-slate-50 py-12">
+    <div class="container mx-auto px-4 max-w-4xl">
+        <!-- Breadcrumb -->
+        <nav class="mb-8 flex items-center gap-2 text-sm font-medium text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="transition hover:text-cyan-600">Dashboard</a>
+            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            <span class="text-slate-900">Edit Laporan Bencana</span>
+        </nav>
 
-        <div class="overflow-hidden rounded-[28px] border border-white/70 bg-white shadow-[0_28px_70px_rgba(14,116,144,0.14)]">
-            <div class="bg-gradient-to-r from-cyan-600 via-sky-600 to-blue-700 px-8 py-7 text-white">
-                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-100">Admin Panel</p>
-                <h1 class="mt-2 text-2xl font-bold">Edit Laporan Bencana</h1>
-                <p class="mt-1 text-sm text-cyan-100">Perbarui informasi laporan yang sudah masuk ke sistem.</p>
+        <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/50">
+            <div class="flex items-center gap-6 border-b border-slate-100 bg-slate-50/50 px-8 py-6">
+                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-600 text-white shadow-lg shadow-cyan-200">
+                    <i class="fa-solid fa-file-pen text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black tracking-tight text-slate-900">Edit Laporan</h1>
+                    <p class="text-sm font-medium text-slate-500">Perbarui data kejadian bencana yang sudah ada.</p>
+                </div>
             </div>
 
-            <form action="{{ route('admin.reports.update', $report) }}" method="POST" class="space-y-6 p-8">
+            <form action="{{ route('admin.reports.update', $report) }}" method="POST" class="p-8">
                 @csrf
                 @method('PUT')
+                
+                <div class="grid gap-8 lg:grid-cols-2">
+                    <!-- Kolom Kiri -->
+                    <div class="space-y-6">
+                        <div class="group space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-widest text-slate-400 transition group-focus-within:text-cyan-600">Judul Kejadian</label>
+                            <input type="text" name="title" value="{{ $report->title }}" required class="w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 font-medium transition focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-500/10">
+                        </div>
 
-                <div class="grid gap-6 md:grid-cols-2">
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold text-slate-700">Judul Laporan</label>
-                        <input type="text" name="title" value="{{ old('title', $report->title) }}" required class="w-full rounded-xl border-slate-200 focus:border-cyan-500 focus:ring-cyan-500" placeholder="Contoh: Banjir Bandang Surabaya">
+                        <div class="group space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-widest text-slate-400 transition group-focus-within:text-cyan-600">Tipe Bencana</label>
+                            <select name="disaster_type" required class="w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 font-medium transition focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-500/10">
+                                <option value="Banjir" {{ $report->disaster_type == 'Banjir' ? 'selected' : '' }}>Banjir</option>
+                                <option value="Gempa Bumi" {{ $report->disaster_type == 'Gempa Bumi' ? 'selected' : '' }}>Gempa Bumi</option>
+                                <option value="Tanah Longsor" {{ $report->disaster_type == 'Tanah Longsor' ? 'selected' : '' }}>Tanah Longsor</option>
+                                <option value="Tsunami" {{ $report->disaster_type == 'Tsunami' ? 'selected' : '' }}>Tsunami</option>
+                                <option value="Angin Puting Beliung" {{ $report->disaster_type == 'Angin Puting Beliung' ? 'selected' : '' }}>Angin Puting Beliung</option>
+                            </select>
+                        </div>
+
+                        <div class="group space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-widest text-slate-400 transition group-focus-within:text-cyan-600">Lokasi Wilayah</label>
+                            <input type="text" name="location" value="{{ $report->location }}" required class="w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 font-medium transition focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-500/10">
+                        </div>
                     </div>
 
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold text-slate-700">Jenis Bencana</label>
-                        <select name="disaster_type" required class="w-full rounded-xl border-slate-200 focus:border-cyan-500 focus:ring-cyan-500">
-                            @foreach(['Banjir', 'Gempa Bumi', 'Tanah Longsor', 'Kebakaran Hutan', 'Tsunami', 'Lainnya'] as $type)
-                                <option value="{{ $type }}" @selected(old('disaster_type', $report->disaster_type) === $type)>{{ $type }}</option>
-                            @endforeach
-                        </select>
+                    <!-- Kolom Kanan -->
+                    <div class="space-y-6">
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div class="group space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-widest text-slate-400 transition group-focus-within:text-cyan-600">Latitude</label>
+                                <input type="number" step="any" name="latitude" value="{{ $report->latitude }}" required class="w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 font-medium transition focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-500/10">
+                            </div>
+                            <div class="group space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-widest text-slate-400 transition group-focus-within:text-cyan-600">Longitude</label>
+                                <input type="number" step="any" name="longitude" value="{{ $report->longitude }}" required class="w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 font-medium transition focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-500/10">
+                            </div>
+                        </div>
+
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div class="group space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-widest text-slate-400 transition group-focus-within:text-cyan-600">Tanggal</label>
+                                <input type="date" name="report_date" value="{{ $report->report_date instanceof \DateTime ? $report->report_date->format('Y-m-d') : date('Y-m-d', strtotime($report->report_date)) }}" required class="w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 font-medium transition focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-500/10">
+                            </div>
+                        <div class="group space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-widest text-slate-400 transition group-focus-within:text-cyan-600">Status & Tingkat Risiko</label>
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <label class="relative flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 transition hover:bg-white has-[:checked]:border-red-500 has-[:checked]:bg-red-50 has-[:checked]:ring-4 has-[:checked]:ring-red-500/10">
+                                    <input type="radio" name="disaster_status" value="Terjadi" {{ $report->disaster_status == 'Terjadi' ? 'checked' : '' }} required class="peer hidden">
+                                    <div class="h-4 w-4 rounded-full border-2 border-slate-300 bg-white peer-checked:border-red-600 peer-checked:bg-red-500"></div>
+                                    <span class="text-xs font-bold text-slate-600 peer-checked:text-red-700">Bencana Terjadi</span>
+                                </label>
+
+                                <label class="relative flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 transition hover:bg-white has-[:checked]:border-orange-700 has-[:checked]:bg-orange-50 has-[:checked]:ring-4 has-[:checked]:ring-orange-700/10">
+                                    <input type="radio" name="prediction_percentage" value="80" {{ ($report->disaster_status == 'Prediksi' && $report->prediction_percentage >= 75) ? 'checked' : '' }} class="peer hidden">
+                                    <div class="h-4 w-4 rounded-full border-2 border-slate-300 bg-white peer-checked:border-orange-800 peer-checked:bg-orange-700"></div>
+                                    <span class="text-xs font-bold text-slate-600 peer-checked:text-orange-900">Prediksi Sangat Tinggi (≥75%)</span>
+                                </label>
+
+                                <label class="relative flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 transition hover:bg-white has-[:checked]:border-orange-500 has-[:checked]:bg-orange-50 has-[:checked]:ring-4 has-[:checked]:ring-orange-500/10">
+                                    <input type="radio" name="prediction_percentage" value="60" {{ ($report->disaster_status == 'Prediksi' && $report->prediction_percentage >= 50 && $report->prediction_percentage < 75) ? 'checked' : '' }} class="peer hidden">
+                                    <div class="h-4 w-4 rounded-full border-2 border-slate-300 bg-white peer-checked:border-orange-600 peer-checked:bg-orange-500"></div>
+                                    <span class="text-xs font-bold text-slate-600 peer-checked:text-orange-800">Prediksi Tinggi (50-74%)</span>
+                                </label>
+
+                                <label class="relative flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 transition hover:bg-white has-[:checked]:border-yellow-500 has-[:checked]:bg-yellow-50 has-[:checked]:ring-4 has-[:checked]:ring-yellow-500/10">
+                                    <input type="radio" name="prediction_percentage" value="40" {{ ($report->disaster_status == 'Prediksi' && $report->prediction_percentage >= 30 && $report->prediction_percentage < 50) ? 'checked' : '' }} class="peer hidden">
+                                    <div class="h-4 w-4 rounded-full border-2 border-slate-300 bg-white peer-checked:border-yellow-600 peer-checked:bg-yellow-500"></div>
+                                    <span class="text-xs font-bold text-slate-600 peer-checked:text-yellow-800">Prediksi Sedang (30-49%)</span>
+                                </label>
+
+                                <label class="relative flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 transition hover:bg-white has-[:checked]:border-lime-500 has-[:checked]:bg-lime-50 has-[:checked]:ring-4 has-[:checked]:ring-lime-500/10">
+                                    <input type="radio" name="prediction_percentage" value="20" {{ ($report->disaster_status == 'Prediksi' && $report->prediction_percentage < 30) ? 'checked' : '' }} class="peer hidden">
+                                    <div class="h-4 w-4 rounded-full border-2 border-slate-300 bg-white peer-checked:border-lime-600 peer-checked:bg-lime-500"></div>
+                                    <span class="text-xs font-bold text-slate-600 peer-checked:text-lime-800">Prediksi Rendah (<30%)</span>
+                                </label>
+
+                                <label class="relative flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 transition hover:bg-white has-[:checked]:border-slate-400 has-[:checked]:bg-slate-100 has-[:checked]:ring-4 has-[:checked]:ring-slate-400/10">
+                                    <input type="radio" name="disaster_status" value="Selesai" {{ $report->disaster_status == 'Selesai' ? 'checked' : '' }} class="peer hidden">
+                                    <div class="h-4 w-4 rounded-full border-2 border-slate-300 bg-white peer-checked:border-slate-500 peer-checked:bg-white shadow-inner"></div>
+                                    <span class="text-xs font-bold text-slate-600 peer-checked:text-slate-900">Bencana Selesai</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <script>
+                            // Script sederhana untuk mengatur disaster_status otomatis jika memilih prediksi
+                            document.querySelectorAll('input[name="prediction_percentage"]').forEach(radio => {
+                                radio.addEventListener('change', () => {
+                                    const statusRadios = document.querySelectorAll('input[name="disaster_status"]');
+                                    statusRadios.forEach(r => r.checked = false);
+                                    
+                                    let hiddenStatus = document.getElementById('hidden_disaster_status');
+                                    if(!hiddenStatus) {
+                                        hiddenStatus = document.createElement('input');
+                                        hiddenStatus.type = 'hidden';
+                                        hiddenStatus.name = 'disaster_status';
+                                        hiddenStatus.id = 'hidden_disaster_status';
+                                        radio.form.appendChild(hiddenStatus);
+                                    }
+                                    hiddenStatus.value = 'Prediksi';
+                                });
+                            });
+
+                            document.querySelectorAll('input[name="disaster_status"]').forEach(radio => {
+                                radio.addEventListener('change', () => {
+                                    document.querySelectorAll('input[name="prediction_percentage"]').forEach(r => r.checked = false);
+                                    const hiddenStatus = document.getElementById('hidden_disaster_status');
+                                    if(hiddenStatus) hiddenStatus.remove();
+                                });
+                            });
+                        </script>
+                        </div>
+
+                        <div class="group space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-widest text-slate-400 transition group-focus-within:text-cyan-600">Sumber Informasi</label>
+                            <input type="text" name="source" value="{{ $report->source }}" required class="w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 font-medium transition focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-500/10">
+                        </div>
                     </div>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="text-sm font-semibold text-slate-700">Lokasi</label>
-                    <input type="text" name="location" value="{{ old('location', $report->location) }}" required class="w-full rounded-xl border-slate-200 focus:border-cyan-500 focus:ring-cyan-500" placeholder="Contoh: Kec. Wonokromo, Surabaya">
+                <div class="mt-8 group space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-widest text-slate-400 transition group-focus-within:text-cyan-600">Deskripsi Kejadian</label>
+                    <textarea name="description" rows="4" required class="w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 font-medium transition focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-500/10">{{ $report->description }}</textarea>
                 </div>
 
-                <div class="grid gap-6 md:grid-cols-2">
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold text-slate-700">Latitude</label>
-                        <input type="number" step="any" name="latitude" value="{{ old('latitude', $report->latitude) }}" required class="w-full rounded-xl border-slate-200 focus:border-cyan-500 focus:ring-cyan-500" placeholder="-7.2504">
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold text-slate-700">Longitude</label>
-                        <input type="number" step="any" name="longitude" value="{{ old('longitude', $report->longitude) }}" required class="w-full rounded-xl border-slate-200 focus:border-cyan-500 focus:ring-cyan-500" placeholder="112.7688">
-                    </div>
-                </div>
-
-                <div class="grid gap-6 md:grid-cols-2">
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold text-slate-700">Tanggal Kejadian</label>
-                        <input type="date" name="report_date" value="{{ old('report_date', optional($report->report_date)->format('Y-m-d')) }}" required class="w-full rounded-xl border-slate-200 focus:border-cyan-500 focus:ring-cyan-500">
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold text-slate-700">Status Bencana</label>
-                        <select name="disaster_status" required class="w-full rounded-xl border-slate-200 focus:border-cyan-500 focus:ring-cyan-500">
-                            @foreach(['Terjadi' => 'Terjadi', 'Selesai' => 'Selesai', 'Prediksi' => 'Prediksi'] as $value => $label)
-                                <option value="{{ $value }}" @selected(old('disaster_status', $report->disaster_status) === $value)>{{ $label }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid gap-6 md:grid-cols-2">
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold text-slate-700">Status Data</label>
-                        <select name="status" required class="w-full rounded-xl border-slate-200 focus:border-cyan-500 focus:ring-cyan-500">
-                            @foreach(['Diproses', 'Diverifikasi', 'Selesai'] as $status)
-                                <option value="{{ $status }}" @selected(old('status', $report->status) === $status)>{{ $status }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold text-slate-700">Target Donasi</label>
-                        <input type="number" min="0" name="goal_amount" value="{{ old('goal_amount', $report->goal_amount) }}" class="w-full rounded-xl border-slate-200 focus:border-cyan-500 focus:ring-cyan-500" placeholder="0">
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <label class="text-sm font-semibold text-slate-700">Sumber Data</label>
-                    <input type="text" name="source" value="{{ old('source', $report->source) }}" required class="w-full rounded-xl border-slate-200 focus:border-cyan-500 focus:ring-cyan-500" placeholder="BUMN / API / PetaBencana">
-                </div>
-
-                <div class="space-y-2">
-                    <label class="text-sm font-semibold text-slate-700">Deskripsi</label>
-                    <textarea name="description" rows="4" required class="w-full rounded-xl border-slate-200 focus:border-cyan-500 focus:ring-cyan-500" placeholder="Jelaskan detail kejadian bencana...">{{ old('description', $report->description) }}</textarea>
-                </div>
-
-                <label class="flex items-center gap-3 rounded-2xl border border-sky-100 bg-sky-50/70 px-4 py-3 text-sm font-semibold text-sky-900">
-                    <input type="checkbox" name="is_confirmed" value="1" @checked(old('is_confirmed', $report->is_confirmed)) class="h-4 w-4 rounded border-sky-300 text-cyan-600 focus:ring-cyan-500">
-                    Laporan sudah dikonfirmasi dan dipublikasikan
-                </label>
-
-                <div class="flex flex-wrap items-center justify-end gap-3 pt-2">
-                    <a href="{{ route('admin.dashboard', ['tab' => 'bencana']) }}" class="rounded-xl border border-slate-200 bg-white px-5 py-2.5 font-semibold text-slate-600 transition hover:bg-slate-50">Batal</a>
-                    <button type="submit" class="rounded-xl bg-gradient-to-r from-cyan-600 to-blue-700 px-5 py-2.5 font-bold text-white shadow-lg shadow-cyan-200 transition hover:scale-[1.01]">Simpan Perubahan</button>
+                <div class="mt-10 flex items-center justify-end gap-4 border-t border-slate-100 pt-8">
+                    <a href="{{ route('admin.dashboard') }}" class="rounded-2xl px-8 py-3.5 text-sm font-bold text-slate-400 transition hover:bg-slate-100 hover:text-slate-600">Batal</a>
+                    <button type="submit" class="rounded-2xl bg-cyan-600 px-10 py-3.5 text-sm font-bold text-white shadow-xl shadow-cyan-200 transition hover:bg-cyan-700 active:scale-95">
+                        Simpan Perubahan
+                    </button>
                 </div>
             </form>
         </div>

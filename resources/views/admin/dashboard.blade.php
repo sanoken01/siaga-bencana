@@ -66,6 +66,12 @@
                         <i class="fa-solid fa-circle-check mr-2"></i> {{ session('success') }}
                     </div>
                 @endif
+
+                @if(session('error'))
+                    <div class="mb-4 rounded-xl bg-rose-100 p-4 text-sm font-semibold text-rose-700 shadow-sm">
+                        <i class="fa-solid fa-circle-exclamation mr-2"></i> {{ session('error') }}
+                    </div>
+                @endif
                 
                 <!-- TAB: OVERVIEW -->
                 <section id="tab-overview" class="tab-content">
@@ -128,7 +134,18 @@
                     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         @forelse($reports as $report)
                             <article class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-                                <div class="absolute left-0 top-0 h-full w-1 {{ $report->is_confirmed ? 'bg-cyan-500' : 'bg-amber-500' }}"></div>
+                                @php
+                                    $borderColor = 'bg-slate-400'; // Default Selesai
+                                    if ($report->disaster_status === 'Terjadi') {
+                                        $borderColor = 'bg-red-500';
+                                    } elseif ($report->disaster_status === 'Prediksi') {
+                                        if ($report->prediction_percentage >= 75) $borderColor = 'bg-orange-700';
+                                        elseif ($report->prediction_percentage >= 50) $borderColor = 'bg-orange-500';
+                                        elseif ($report->prediction_percentage >= 30) $borderColor = 'bg-yellow-500';
+                                        else $borderColor = 'bg-lime-500';
+                                    }
+                                @endphp
+                                <div class="absolute left-0 top-0 h-full w-1 {{ $borderColor }}"></div>
                                 <div class="flex items-center justify-between mb-3">
                                     <span class="rounded bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700 uppercase">
                                         {{ $report->disaster_type }}
@@ -143,8 +160,17 @@
                                     <span>{{ $report->location ?? '-' }}</span>
                                 </div>
                                 <div class="mt-4 flex items-center justify-between border-t border-slate-50 pt-3">
-                                    <div class="text-[10px] text-slate-400">
-                                        By: <span class="font-bold text-slate-600">{{ $report->user?->name ?? 'System' }}</span>
+                                    <div class="flex items-center gap-2">
+                                        <a href="{{ route('admin.reports.edit', $report) }}" class="rounded-lg bg-slate-100 p-2 text-slate-600 transition hover:bg-cyan-100 hover:text-cyan-700" title="Edit Laporan">
+                                            <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                        </a>
+                                        <form action="{{ route('admin.reports.destroy', $report) }}" method="POST" onsubmit="return confirm('Hapus laporan ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="rounded-lg bg-slate-100 p-2 text-slate-600 transition hover:bg-rose-100 hover:text-rose-700" title="Hapus Laporan">
+                                                <i class="fa-solid fa-trash-can text-xs"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                     @if(!$report->is_confirmed)
                                         <form action="{{ route('admin.reports.confirm', $report) }}" method="POST">
@@ -250,6 +276,20 @@
                                         <span class="text-slate-400">Joined:</span>
                                         <span class="text-slate-500">{{ $user->created_at->format('M Y') }}</span>
                                     </div>
+                                </div>
+                                <div class="mt-4 flex items-center justify-end gap-2 border-t border-slate-50 pt-3">
+                                    <a href="{{ route('admin.users.edit', $user) }}" class="rounded-lg bg-slate-50 px-3 py-1.5 text-[10px] font-bold text-slate-600 transition hover:bg-blue-100 hover:text-blue-700">
+                                        <i class="fa-solid fa-user-pen mr-1"></i> Edit
+                                    </a>
+                                    @if($user->id !== auth()->id())
+                                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Hapus pengguna ini secara permanen?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="rounded-lg bg-slate-50 px-3 py-1.5 text-[10px] font-bold text-slate-400 transition hover:bg-rose-100 hover:text-rose-700">
+                                                <i class="fa-solid fa-user-minus mr-1"></i> Hapus
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </article>
                         @empty
