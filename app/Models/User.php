@@ -53,4 +53,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Report::class);
     }
+
+    public function donations()
+    {
+        return $this->hasMany(Donation::class);
+    }
+
+    public function latestDonation()
+    {
+        return $this->hasOne(Donation::class)->latestOfMany();
+    }
 }
