@@ -4,11 +4,37 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Report;
+use App\Models\User;
+use App\Models\Donation;
+use Illuminate\Support\Facades\DB;
 
 class JavaDisasterSeeder extends Seeder
 {
     public function run(): void
     {
+        // 1. Clear existing data
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        User::truncate();
+        Report::truncate();
+        Donation::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+        // 2. Create Admin and Test Users
+        User::create([
+            'name' => 'Admin Siaga',
+            'email' => 'admin@example.com',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+        ]);
+
+        User::create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => bcrypt('password'),
+            'role' => 'user',
+        ]);
+
+        // 3. Original Disaster Data
         $disasters = [
             [
                 'title' => 'Gempa Bumi Magnitude 5.2 - Surabaya',
@@ -22,8 +48,8 @@ class JavaDisasterSeeder extends Seeder
                 'disaster_status' => 'Terjadi',
                 'prediction_percentage' => 0,
                 'source' => 'BUMN',
+                'is_confirmed' => true,
             ],
-            // Banjir di Jakarta
             [
                 'title' => 'Banjir Wilayah Jakarta Pusat',
                 'disaster_type' => 'Banjir',
@@ -36,8 +62,8 @@ class JavaDisasterSeeder extends Seeder
                 'disaster_status' => 'Terjadi',
                 'prediction_percentage' => 0,
                 'source' => 'BUMN',
+                'is_confirmed' => true,
             ],
-            // Prediksi Gempa Bandung Tinggi
             [
                 'title' => 'Prediksi Gempa Zona Bandung',
                 'disaster_type' => 'Gempa Bumi',
@@ -50,8 +76,8 @@ class JavaDisasterSeeder extends Seeder
                 'disaster_status' => 'Prediksi',
                 'prediction_percentage' => 65,
                 'source' => 'BUMN',
+                'is_confirmed' => true,
             ],
-            // Tanah Longsor di Yogyakarta
             [
                 'title' => 'Tanah Longsor - Kabupaten Sleman',
                 'disaster_type' => 'Tanah Longsor',
@@ -64,8 +90,8 @@ class JavaDisasterSeeder extends Seeder
                 'disaster_status' => 'Terjadi',
                 'prediction_percentage' => 0,
                 'source' => 'BUMN',
+                'is_confirmed' => true,
             ],
-            // Tsunami Warning di Semarang
             [
                 'title' => 'Peringatan Tsunami Potensi - Semarang',
                 'disaster_type' => 'Tsunami',
@@ -78,8 +104,8 @@ class JavaDisasterSeeder extends Seeder
                 'disaster_status' => 'Prediksi',
                 'prediction_percentage' => 72,
                 'source' => 'BUMN',
+                'is_confirmed' => true,
             ],
-            // Kehancuran Tamat Bencana
             [
                 'title' => 'Gempa Lalu - Majalengka (SELESAI)',
                 'disaster_type' => 'Gempa Bumi',
@@ -92,8 +118,8 @@ class JavaDisasterSeeder extends Seeder
                 'disaster_status' => 'Selesai',
                 'prediction_percentage' => 0,
                 'source' => 'BUMN',
+                'is_confirmed' => true,
             ],
-            // Prediksi Banjir Rendah
             [
                 'title' => 'Prediksi Banjir Rendah - Cilacap',
                 'disaster_type' => 'Banjir',
@@ -106,8 +132,8 @@ class JavaDisasterSeeder extends Seeder
                 'disaster_status' => 'Prediksi',
                 'prediction_percentage' => 25,
                 'source' => 'BUMN',
+                'is_confirmed' => true,
             ],
-            // Prediksi Tanah Longsor Sedang
             [
                 'title' => 'Prediksi Longsor - Bogor',
                 'disaster_type' => 'Tanah Longsor',
@@ -120,8 +146,8 @@ class JavaDisasterSeeder extends Seeder
                 'disaster_status' => 'Prediksi',
                 'prediction_percentage' => 45,
                 'source' => 'BUMN',
+                'is_confirmed' => true,
             ],
-            // Prediksi Banjir Median
             [
                 'title' => 'Prediksi Banjir - Cirebon',
                 'disaster_type' => 'Banjir',
@@ -134,8 +160,8 @@ class JavaDisasterSeeder extends Seeder
                 'disaster_status' => 'Prediksi',
                 'prediction_percentage' => 35,
                 'source' => 'BUMN',
+                'is_confirmed' => true,
             ],
-            // Gempa Kediri
             [
                 'title' => 'Gempa Tektonik - Kediri',
                 'disaster_type' => 'Gempa Bumi',
@@ -148,8 +174,8 @@ class JavaDisasterSeeder extends Seeder
                 'disaster_status' => 'Terjadi',
                 'prediction_percentage' => 0,
                 'source' => 'BUMN',
+                'is_confirmed' => true,
             ],
-            // Longsor Prediksi Tinggi Puncak
             [
                 'title' => 'Prediksi Tanah Longsor - Puncak',
                 'disaster_type' => 'Tanah Longsor',
@@ -162,11 +188,25 @@ class JavaDisasterSeeder extends Seeder
                 'disaster_status' => 'Prediksi',
                 'prediction_percentage' => 78,
                 'source' => 'BUMN',
+                'is_confirmed' => true,
             ],
         ];
 
         foreach ($disasters as $disaster) {
             Report::create($disaster);
         }
+
+        // 4. Sample Donation
+        Donation::create([
+            'user_id' => 1,
+            'report_id' => 1,
+            'donor_name' => 'Admin Siaga',
+            'email' => 'admin@example.com',
+            'amount' => 500000,
+            'payment_method' => 'Transfer Bank',
+            'message' => 'Semoga bermanfaat.',
+        ]);
+
+        $this->command->info('Synchronization complete using ONLY your original data!');
     }
 }

@@ -112,11 +112,14 @@
 
                 <!-- TAB: DATA BENCANA -->
                 <section id="tab-bencana" class="tab-content hidden">
-                    <div class="mb-4 flex items-center justify-between">
+                    <div class="mb-6 flex items-center justify-between">
                         <div>
-                            <h2 class="text-2xl font-bold text-cyan-800">Manajemen Data Bencana</h2>
-                            <p class="text-sm text-slate-600">Total: {{ $reports->total() }} laporan</p>
+                            <h2 class="text-2xl font-bold text-cyan-800">Manajemen Laporan Bencana</h2>
+                            <p class="text-sm text-slate-600">Daftar semua laporan bencana yang masuk ke sistem.</p>
                         </div>
+                        <a href="{{ route('admin.reports.create') }}" class="rounded-xl bg-cyan-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-cyan-200 transition hover:bg-cyan-700">
+                            <i class="fa-solid fa-plus mr-2"></i> Tambah Laporan
+                        </a>
                     </div>
 
                     <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -218,11 +221,14 @@
 
                 <!-- TAB: DATA PENGGUNA -->
                 <section id="tab-users" class="tab-content hidden">
-                    <div class="mb-4 flex items-center justify-between">
+                    <div class="mb-6 flex items-center justify-between">
                         <div>
-                            <h2 class="text-2xl font-bold text-rose-700">Manajemen Data Pengguna</h2>
-                            <p class="text-sm text-slate-600">Total: {{ $users->total() }} pengguna</p>
+                            <h2 class="text-2xl font-bold text-cyan-800">Manajemen Pengguna</h2>
+                            <p class="text-sm text-slate-600">Daftar semua relawan dan administrator sistem.</p>
                         </div>
+                        <a href="{{ route('admin.users.create') }}" class="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700">
+                            <i class="fa-solid fa-user-plus mr-2"></i> Tambah User
+                        </a>
                     </div>
 
                     <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">

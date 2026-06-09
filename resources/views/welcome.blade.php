@@ -1926,7 +1926,7 @@
         <div class="map-main-wrap">
             <div class="section-heading">
                 <span class="tag">Fitur Utama</span>
-                <h2 class="map-main-heading">Peta Bencana Jawa Timur</h2>
+                <h2 class="map-main-heading">Peta Bencana Indonesia</h2>
                 <p class="map-main-description">Pantau lokasi bencana secara visual dan real-time.</p>
             </div>
 
@@ -2048,8 +2048,8 @@
                         <div class="stat-icon"><i class="fa-solid fa-house-crack"></i></div>
                     </div>
                     <p class="stat-label">Total Bencana</p>
-                    <h3 class="stat-number" data-counter="1287">0</h3>
-                    <p class="stat-note">Kejadian tercatat sepanjang tahun ini</p>
+                    <h3 class="stat-number" data-counter="{{ $stats['total_reports'] ?? 0 }}">0</h3>
+                    <p class="stat-note">Data laporan terverifikasi</p>
                 </article>
 
                 <article class="stat-card">
@@ -2057,8 +2057,8 @@
                         <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
                     </div>
                     <p class="stat-label">Bencana Aktif</p>
-                    <h3 class="stat-number" data-counter="76">0</h3>
-                    <p class="stat-note">Lokasi status siaga atau tanggap darurat</p>
+                    <h3 class="stat-number" data-counter="{{ $stats['active_reports'] ?? 0 }}">0</h3>
+                    <p class="stat-note">Lokasi status siaga/tanggap darurat</p>
                 </article>
 
                 <article class="stat-card">
@@ -2066,8 +2066,8 @@
                         <div class="stat-icon"><i class="fa-solid fa-people-group"></i></div>
                     </div>
                     <p class="stat-label">Relawan Terdaftar</p>
-                    <h3 class="stat-number" data-counter="54210">0</h3>
-                    <p class="stat-note">Jaringan relawan aktif lintas wilayah</p>
+                    <h3 class="stat-number" data-counter="{{ $stats['total_users'] ?? 0 }}">0</h3>
+                    <p class="stat-note">Anggota tim siaga aktif</p>
                 </article>
 
                 <article class="stat-card">
@@ -2075,8 +2075,8 @@
                         <div class="stat-icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
                     </div>
                     <p class="stat-label">Total Donasi</p>
-                    <h3 class="stat-number" data-counter="964">0</h3>
-                    <p class="stat-note">Miliar rupiah tersalurkan secara transparan</p>
+                    <h3 class="stat-number" data-counter="{{ $stats['total_donations'] ?? 0 }}">0</h3>
+                    <p class="stat-note">Rupiah tersalurkan secara transparan</p>
                 </article>
             </div>
         </div>
@@ -2765,7 +2765,7 @@
                     return;
                 }
 
-                const statsSection = document.getElementById('status');
+                const statsSection = document.getElementById('stats');
                 if (!statsSection) {
                     return;
                 }

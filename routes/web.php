@@ -8,7 +8,13 @@ use App\Http\Controllers\DonasiController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    $stats = [
+        'total_reports' => \App\Models\Report::count(),
+        'active_reports' => \App\Models\Report::where('disaster_status', 'Terjadi')->count(),
+        'total_users' => \App\Models\User::count(),
+        'total_donations' => \App\Models\Donation::sum('amount'),
+    ];
+    return view('welcome', compact('stats'));
 })->name('welcome');
 
 // Static Education Routes
@@ -32,8 +38,14 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('admin')->group(function () {
         Route::get('/admin/reports', [AdminReportController::class, 'index'])->name('admin.reports');
+        Route::get('/admin/reports/create', [AdminReportController::class, 'create'])->name('admin.reports.create');
+        Route::post('/admin/reports', [AdminReportController::class, 'store'])->name('admin.reports.store');
         Route::patch('/admin/reports/{report}/goal', [AdminReportController::class, 'updateGoal'])->name('admin.report.goal');
         Route::patch('/admin/reports/{report}/confirm', [AdminReportController::class, 'confirm'])->name('admin.reports.confirm');
+
+        // User Management
+        Route::get('/admin/users/create', [AdminController::class, 'userCreate'])->name('admin.users.create');
+        Route::post('/admin/users', [AdminController::class, 'userStore'])->name('admin.users.store');
 
         // News Management
         Route::post('/admin/news', [AdminNewsController::class, 'store'])->name('admin.news.store');
